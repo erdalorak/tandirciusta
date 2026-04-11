@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
-import { supabase, getSettings } from '@/lib/supabase'
+import { supabaseAdmin as supabase, getSettings } from '@/lib/supabase'
 import type { BlogPost } from '@/lib/supabase'
 import Link from 'next/link'
 

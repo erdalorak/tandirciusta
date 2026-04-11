@@ -24,7 +24,7 @@ export type GalleryImage = {
 }
 
 export async function getSettings(): Promise<Record<string, string>> {
-  const { data } = await supabase.from('site_settings').select('key,value')
+  const { data } = await supabaseAdmin.from('site_settings').select('key,value')
   if (!data) return {}
   return Object.fromEntries(data.map((s: SiteSetting) => [s.key, s.value]))
 }

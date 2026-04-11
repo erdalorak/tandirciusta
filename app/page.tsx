@@ -2,7 +2,7 @@ import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 import MenuClient from '@/components/MenuClient'
 import ScrollReveal from '@/components/ScrollReveal'
-import { supabase, getSettings } from '@/lib/supabase'
+import { supabaseAdmin as supabase, getSettings } from '@/lib/supabase'
 import type { MenuCategory, MenuItem, BlogPost, GalleryImage } from '@/lib/supabase'
 import Link from 'next/link'
 

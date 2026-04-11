@@ -2,7 +2,34 @@
   "permissions": {
     "allow": [
       "Bash(unzip -l tandirciusta.zip)",
-      "Bash(unzip -o tandirciusta.zip -d /c/Users/ERDAL/OneDrive/Masaüstü/tandirciustacom_extract)"
+      "Bash(unzip -o tandirciusta.zip -d /c/Users/ERDAL/OneDrive/Masaüstü/tandirciustacom_extract)",
+      "Bash(gh repo:*)",
+      "Bash(git --version)",
+      "Bash(curl --version)",
+      "Bash(npx vercel:*)",
+      "Bash(curl -s -X PATCH 'https://waaepophabxouhbrkjvz.supabase.co/rest/v1/site_settings?key=eq.phone' -H 'apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhYWVwb3BoYWJ4b3VoYnJranZ6Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTg1OTgwNywiZXhwIjoyMDkxNDM1ODA3fQ.Exw22i94dz62vwe4IJotbyUKqHK8D0tB1DsPeptaKaU' -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhYWVwb3BoYWJ4b3VoYnJranZ6Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTg1OTgwNywiZXhwIjoyMDkxNDM1ODA3fQ.Exw22i94dz62vwe4IJotbyUKqHK8D0tB1DsPeptaKaU' -H 'Content-Type: application/json' -d '{\"value\": \"0539 451 80 33\"}')",
+      "Bash(curl -s -X PATCH 'https://waaepophabxouhbrkjvz.supabase.co/rest/v1/site_settings?key=eq.whatsapp' -H 'apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhYWVwb3BoYWJ4b3VoYnJranZ6Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTg1OTgwNywiZXhwIjoyMDkxNDM1ODA3fQ.Exw22i94dz62vwe4IJotbyUKqHK8D0tB1DsPeptaKaU' -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhYWVwb3BoYWJ4b3VoYnJranZ6Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTg1OTgwNywiZXhwIjoyMDkxNDM1ODA3fQ.Exw22i94dz62vwe4IJotbyUKqHK8D0tB1DsPeptaKaU' -H 'Content-Type: application/json' -d '{\"value\": \"905394518033\"}')",
+      "WebSearch",
+      "WebFetch(domain:www.instagram.com)",
+      "WebFetch(domain:www.google.com)",
+      "WebFetch(domain:mekanlar.com)",
+      "WebFetch(domain:www.tripadvisor.com)",
+      "WebFetch(domain:tandirciustacom.onrender.com)",
+      "WebFetch(domain:www.yemeksepeti.com)",
+      "Bash(curl -s -X PATCH 'https://waaepophabxouhbrkjvz.supabase.co/rest/v1/site_settings?key=eq.address' -H 'apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhYWVwb3BoYWJ4b3VoYnJranZ6Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTg1OTgwNywiZXhwIjoyMDkxNDM1ODA3fQ.Exw22i94dz62vwe4IJotbyUKqHK8D0tB1DsPeptaKaU' -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhYWVwb3BoYWJ4b3VoYnJranZ6Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTg1OTgwNywiZXhwIjoyMDkxNDM1ODA3fQ.Exw22i94dz62vwe4IJotbyUKqHK8D0tB1DsPeptaKaU' -H 'Content-Type: application/json' -d '{\"value\":\"Ahi Evran Mah. Ahi Külliyesi Zanaatkarlar Çarşısı, Kırşehir 40100\"}')",
+      "Bash(curl -s -X PATCH 'https://waaepophabxouhbrkjvz.supabase.co/rest/v1/site_settings?key=eq.hours_weekday' -H 'apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhYWVwb3BoYWJ4b3VoYnJranZ6Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTg1OTgwNywiZXhwIjoyMDkxNDM1ODA3fQ.Exw22i94dz62vwe4IJotbyUKqHK8D0tB1DsPeptaKaU' -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhYWVwb3BoYWJ4b3VoYnJranZ6Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTg1OTgwNywiZXhwIjoyMDkxNDM1ODA3fQ.Exw22i94dz62vwe4IJotbyUKqHK8D0tB1DsPeptaKaU' -H 'Content-Type: application/json' -d '{\"value\":\"07:00 – 17:00\"}')",
+      "Bash(curl -s -X PATCH 'https://waaepophabxouhbrkjvz.supabase.co/rest/v1/site_settings?key=eq.hours_saturday' -H 'apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhYWVwb3BoYWJ4b3VoYnJranZ6Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTg1OTgwNywiZXhwIjoyMDkxNDM1ODA3fQ.Exw22i94dz62vwe4IJotbyUKqHK8D0tB1DsPeptaKaU' -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhYWVwb3BoYWJ4b3VoYnJranZ6Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTg1OTgwNywiZXhwIjoyMDkxNDM1ODA3fQ.Exw22i94dz62vwe4IJotbyUKqHK8D0tB1DsPeptaKaU' -H 'Content-Type: application/json' -d '{\"value\":\"07:00 – 17:00\"}')",
+      "Bash(curl -s -X PATCH 'https://waaepophabxouhbrkjvz.supabase.co/rest/v1/site_settings?key=eq.hours_sunday' -H 'apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhYWVwb3BoYWJ4b3VoYnJranZ6Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTg1OTgwNywiZXhwIjoyMDkxNDM1ODA3fQ.Exw22i94dz62vwe4IJotbyUKqHK8D0tB1DsPeptaKaU' -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhYWVwb3BoYWJ4b3VoYnJranZ6Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTg1OTgwNywiZXhwIjoyMDkxNDM1ODA3fQ.Exw22i94dz62vwe4IJotbyUKqHK8D0tB1DsPeptaKaU' -H 'Content-Type: application/json' -d '{\"value\":\"Kapalı\"}')",
+      "Bash(curl -s -X PATCH 'https://waaepophabxouhbrkjvz.supabase.co/rest/v1/site_settings?key=eq.instagram' -H 'apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhYWVwb3BoYWJ4b3VoYnJranZ6Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTg1OTgwNywiZXhwIjoyMDkxNDM1ODA3fQ.Exw22i94dz62vwe4IJotbyUKqHK8D0tB1DsPeptaKaU' -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhYWVwb3BoYWJ4b3VoYnJranZ6Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTg1OTgwNywiZXhwIjoyMDkxNDM1ODA3fQ.Exw22i94dz62vwe4IJotbyUKqHK8D0tB1DsPeptaKaU' -H 'Content-Type: application/json' -d '{\"value\":\"https://instagram.com/tandirciusta\"}')",
+      "Bash(python3 -c ':*)",
+      "Bash(node -e ':*)",
+      "Bash(cp \"C:\\\\Users\\\\ERDAL\\\\OneDrive\\\\Masaüstü\\\\TANDIRCI USTA LOGO\\\\BASKI\\\\JPEG\\\\AMBLEM\\\\tandirci-usta-amblem-kirmizi.jpg\" \"C:\\\\Users\\\\ERDAL\\\\OneDrive\\\\Masaüstü\\\\tandirciustacom\\\\public\\\\logo.jpg\")",
+      "Bash(cp \"C:\\\\Users\\\\ERDAL\\\\OneDrive\\\\Masaüstü\\\\TANDIRCI USTA LOGO\\\\BASKI\\\\JPEG\\\\AMBLEM\\\\tandirci-usta-amblem-beyaz.jpg\" \"C:\\\\Users\\\\ERDAL\\\\OneDrive\\\\Masaüstü\\\\tandirciustacom\\\\public\\\\logo-white.jpg\")",
+      "Bash(cp \"C:\\\\Users\\\\ERDAL\\\\OneDrive\\\\Masaüstü\\\\TANDIRCI USTA LOGO\\\\BASKI\\\\JPEG\\\\YUVARLAK LOGO\\\\tandirci-usta-yuvarlak-logo-siyah-kirmizi.jpg\" \"C:\\\\Users\\\\ERDAL\\\\OneDrive\\\\Masaüstü\\\\tandirciustacom\\\\public\\\\og-image.jpg\")",
+      "Bash(cp \"C:\\\\Users\\\\ERDAL\\\\OneDrive\\\\Masaüstü\\\\TANDIRCI USTA LOGO\\\\BASKI\\\\JPEG\\\\YUVARLAK LOGO\\\\tandirci-usta-yuvarlak-logo-kirmizi.jpg\" \"C:\\\\Users\\\\ERDAL\\\\OneDrive\\\\Masaüstü\\\\tandirciustacom\\\\public\\\\logo-round.jpg\")",
+      "Read(//c/Users/ERDAL/AppData/Roaming/Claude/local-agent-mode-sessions/skills-plugin/2db87be5-b094-4b05-a083-c9605a3701c1/1fdb6f49-7e20-4280-bf90-47f8c247a61c/skills/pptx/**)",
+      "Bash(python -m markitdown \"C:\\\\Users\\\\ERDAL\\\\OneDrive\\\\Masaüstü\\\\ilikya iş planı sunumu.pptx\")",
+      "Bash(pip install:*)"
     ]
   }
 }
