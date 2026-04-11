@@ -11,20 +11,20 @@ type Props = {
 }
 
 export default function Footer({
-  phone = '+90 XXX XXX XX XX',
-  address = 'Ahievran Mah. 738. Sk. No:9, Kırşehir',
+  phone = '0539 451 80 33',
+  address = 'Ahi Evran Mah, Ahievran Cd. No:1/7, 40100 Kırşehir Merkez/Kırşehir',
   instagram = 'https://instagram.com/tandirciusta',
-  whatsapp = '90XXXXXXXXXX',
-  hoursWeekday = '09:00 – 21:00',
-  hoursSaturday = '09:00 – 22:00',
-  hoursSunday = '10:00 – 21:00',
+  whatsapp = '905394518033',
+  hoursWeekday = '07:00 – 17:00',
+  hoursSaturday = '07:00 – 17:00',
+  hoursSunday = 'Kapalı',
 }: Props) {
   return (
     <footer className="footer">
       <div className="container">
         <div className="footer-grid">
           <div>
-            <div className="footer-logo-text">Tandırcı<span>.</span>Usta</div>
+            <div className="footer-logo-text">Tandırcı Usta</div>
             <p className="footer-desc">
               Kırşehir&apos;in geleneksel tandır restoranı. Ateşin sabrıyla, ustanın elleriyle pişirilmiş Anadolu lezzetleri.
             </p>

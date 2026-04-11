@@ -603,7 +603,7 @@ export default function AdminPage() {
     return (
       <div className="admin-login">
         <div className="admin-login-card">
-          <div className="admin-login-logo">Tandırcı<span>.</span>Usta</div>
+          <div className="admin-login-logo">Tandırcı Usta</div>
           <div className="admin-login-sub">Admin Paneli</div>
           <input
             type="password"
@@ -626,7 +626,7 @@ export default function AdminPage() {
     <div className="admin-layout">
       {/* Sidebar */}
       <div className="admin-sidebar">
-        <div className="admin-sidebar-logo">Tandırcı<span>.</span>Usta<br /><span style={{ fontSize: 11, fontFamily: 'var(--sans)', color: 'rgba(255,255,255,0.4)', fontWeight: 400 }}>Admin Panel</span></div>
+        <div className="admin-sidebar-logo">Tandırcı Usta<br /><span style={{ fontSize: 11, fontFamily: 'var(--sans)', color: 'rgba(255,255,255,0.4)', fontWeight: 400 }}>Admin Panel</span></div>
         <nav className="admin-nav">
           {TABS.map(tab => (
             <button
