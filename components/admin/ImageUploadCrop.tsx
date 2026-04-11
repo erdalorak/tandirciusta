@@ -1,7 +1,7 @@
 'use client'
 import { useState, useRef, useCallback } from 'react'
 import ReactCrop, { type Crop, centerCrop, makeAspectCrop } from 'react-image-crop'
-import 'react-image-crop/dist/ReactCrop.css'
+// CSS loaded in globals.css
 
 export type AspectRatio = '16:9' | '4:3' | '1:1' | 'free'
 

@@ -1,7 +1,9 @@
 'use client'
 import { useState, useEffect, useCallback, useRef } from 'react'
-import ImageUploadCrop from '@/components/admin/ImageUploadCrop'
+import dynamic from 'next/dynamic'
 import { PAGE_SECTIONS } from '@/lib/admin-pages-config'
+
+const ImageUploadCrop = dynamic(() => import('@/components/admin/ImageUploadCrop'), { ssr: false })
 
 const TABS = ['Sayfalar', 'Menü', 'Blog & Tarifler', 'Galeri'] as const
 type Tab = typeof TABS[number]
