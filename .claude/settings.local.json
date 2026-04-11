@@ -31,7 +31,9 @@
       "Bash(python -m markitdown \"C:\\\\Users\\\\ERDAL\\\\OneDrive\\\\Masaüstü\\\\ilikya iş planı sunumu.pptx\")",
       "Bash(pip install:*)",
       "Bash(findstr ADMIN)",
-      "Bash(del .env.check)"
+      "Bash(del .env.check)",
+      "Bash(curl -sI https://tandirciusta.com)",
+      "Bash(printf \"Erdal1212orak.,\")"
     ]
   }
 }

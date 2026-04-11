@@ -63,10 +63,6 @@ export default async function Home() {
                 )}
               </div>
             </div>
-            {/* Ortadaki hashtag */}
-            <div className="hero-center-col">
-              <div className="hero-hashtag">#MesleğinPîri</div>
-            </div>
           </div>
         </div>
 

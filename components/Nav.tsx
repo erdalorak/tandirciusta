@@ -25,7 +25,8 @@ export default function Nav() {
       <nav className={`nav${scrolled ? ' scrolled' : ''}`}>
         <div className="nav-inner">
           <Link href="/" className="nav-logo" onClick={close}>
-            <img src="/logo.png" alt="Tandırcı Usta" height={80} style={{objectFit:'contain'}} />
+            <img src="/logo.png" alt="Tandırcı Usta" height={120} style={{objectFit:'contain'}} />
+            <span className="nav-hashtag">#MesleğinPîri</span>
           </Link>
 
           <ul className="nav-links">

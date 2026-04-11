@@ -47,10 +47,14 @@ body {
 .nav.scrolled { border-color: var(--border-g); box-shadow: var(--shadow); }
 .nav-inner {
   max-width: 1140px; margin: 0 auto; padding: 0 24px;
-  height: 90px; display: flex; align-items: center; justify-content: space-between;
+  height: 110px; display: flex; align-items: center; justify-content: space-between;
 }
-.nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-.nav-logo img { height: 80px; width: auto; }
+.nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+.nav-logo img { height: 120px; width: auto; }
+.nav-hashtag {
+  font-family: var(--serif); font-size: 13px; font-weight: 700; font-style: italic;
+  color: var(--red); letter-spacing: 0.5px;
+}
 .nav-logo-text { font-family: var(--serif); font-size: 20px; font-weight: 700; color: var(--black); }
 .nav-logo-text span { color: var(--red); }
 .nav-links { display: flex; gap: 8px; list-style: none; align-items: center; }
@@ -92,7 +96,7 @@ body {
 
 /* ── HERO ── */
 .hero {
-  padding-top: 90px; min-height: 92vh;
+  padding-top: 110px; min-height: 92vh;
   display: flex; align-items: stretch;
   background: var(--bg2);
   overflow: hidden;
@@ -104,10 +108,6 @@ body {
 .hero-inner {
   width: 100%; max-width: 560px;
   padding: 80px 40px 80px 24px;
-  display: grid; grid-template-columns: 1fr 72px; gap: 0; align-items: center;
-}
-.hero-center-col {
-  display: flex; align-items: center; justify-content: center;
 }
 .hero-badge {
   display: inline-flex; align-items: center; gap: 8px;
