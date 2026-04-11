@@ -25,9 +25,7 @@ export default function Nav() {
       <nav className={`nav${scrolled ? ' scrolled' : ''}`}>
         <div className="nav-inner">
           <Link href="/" className="nav-logo" onClick={close}>
-            {/* Logo img eklediğinde aşağıdaki satırı aktifleştir: */}
-            {/* <img src="/logo.png" alt="Tandırcı Usta" /> */}
-            <span className="nav-logo-text">Tandırcı<span>.</span>Usta</span>
+            <img src="/logo.jpg" alt="Tandırcı Usta" height={44} style={{objectFit:'contain'}} />
           </Link>
 
           <ul className="nav-links">
