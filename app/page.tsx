@@ -194,12 +194,15 @@ export default async function Home() {
           </div>
           <div className="brands-grid">
             {[
-              { num: '01', name: 'Marka Adı', desc: 'Buraya markanın kısa açıklaması gelecek. Admin panelinden eklenebilir.', tag: 'Yakında' },
-              { num: '02', name: 'Marka Adı', desc: 'Buraya markanın kısa açıklaması gelecek. Admin panelinden eklenebilir.', tag: 'Yakında' },
-              { num: '03', name: 'Marka Adı', desc: 'Buraya markanın kısa açıklaması gelecek. Admin panelinden eklenebilir.', tag: 'Yakında' },
+              { num: '01', name: 'İlikya', desc: 'Dana kemiklerinden elde edilen doğal ve katkısız ilik suyu. Yüksek kolajen içeriği, cam kavanoz ambalaj ve soğuk zincir dağıtımıyla sağlıklı yaşamın doğal destekçisi.', tag: 'Yakında', logo: '/ilikya.png' },
+              { num: '02', name: 'Marka Adı', desc: 'Buraya markanın kısa açıklaması gelecek.', tag: 'Yakında', logo: null },
+              { num: '03', name: 'Marka Adı', desc: 'Buraya markanın kısa açıklaması gelecek.', tag: 'Yakında', logo: null },
             ].map((b, i) => (
               <div key={i} className={`brand-card reveal reveal-d${i + 1}`}>
-                <div className="brand-num">{b.num}</div>
+                {b.logo
+                  ? <img src={b.logo} alt={b.name} style={{height:56, objectFit:'contain', marginBottom:16}} />
+                  : <div className="brand-num">{b.num}</div>
+                }
                 <div className="brand-name">{b.name}</div>
                 <div className="brand-desc">{b.desc}</div>
                 <span className="brand-tag">{b.tag}</span>
