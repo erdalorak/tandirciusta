@@ -1,7 +1,9 @@
 'use client'
 import { useState, useEffect, useCallback, useRef } from 'react'
+import ImageUploadCrop from '@/components/admin/ImageUploadCrop'
+import { PAGE_SECTIONS } from '@/lib/admin-pages-config'
 
-const TABS = ['Genel Ayarlar', 'Menü', 'Blog & Tarifler', 'Galeri'] as const
+const TABS = ['Sayfalar', 'Menü', 'Blog & Tarifler', 'Galeri'] as const
 type Tab = typeof TABS[number]
 
 type Post = { id: string; title: string; slug: string; published: boolean; created_at: string; excerpt: string }
@@ -575,6 +577,120 @@ function BlogTab({ adminKey }: { adminKey: string }) {
   )
 }
 
+function PagesTab({ adminKey }: { adminKey: string }) {
+  const { get, post } = useAdminFetch('pages', adminKey)
+  const [settings, setSettings] = useState<Record<string, string>>({})
+  const [saving, setSaving] = useState(false)
+  const [msg, setMsg] = useState('')
+  const [openSection, setOpenSection] = useState<string>(PAGE_SECTIONS[0].id)
+
+  useEffect(() => { get('/api/settings').then(setSettings) }, [get])
+
+  const flash = (m: string) => { setMsg(m); setTimeout(() => setMsg(''), 3000) }
+
+  const set = (key: string, val: string) => setSettings(s => ({ ...s, [key]: val }))
+
+  const save = async (sectionId: string) => {
+    setSaving(true)
+    const section = PAGE_SECTIONS.find(s => s.id === sectionId)!
+    const payload: Record<string, string> = {}
+    section.fields.forEach(f => {
+      payload[f.key] = settings[f.key] || ''
+      if (f.widthKey) payload[f.widthKey] = settings[f.widthKey] || '100'
+    })
+    try {
+      await post('/api/settings', { ...settings, ...payload })
+      flash('Kaydedildi ✓')
+    } catch { flash('Hata oluştu') }
+    setSaving(false)
+  }
+
+  return (
+    <div>
+      <div className="admin-header">
+        <div className="admin-page-title">Sayfa Yönetimi</div>
+        <div className="admin-page-sub">Her bölüm için görsel yükleyin, kırpın, boyutlandırın ve metinleri düzenleyin.</div>
+      </div>
+
+      {PAGE_SECTIONS.map(section => (
+        <div key={section.id} className="admin-card" style={{ overflow: 'visible' }}>
+          <div
+            className="admin-card-title"
+            style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', userSelect: 'none' }}
+            onClick={() => setOpenSection(openSection === section.id ? '' : section.id)}
+          >
+            <span>{section.title}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              {section.previewPath && (
+                <a
+                  href={section.previewPath}
+                  target="_blank"
+                  rel="noopener"
+                  onClick={e => e.stopPropagation()}
+                  style={{ fontSize: 12, color: 'var(--muted)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                  Önizle
+                </a>
+              )}
+              <span style={{ fontSize: 18, color: 'var(--muted)', transition: 'transform 0.2s', transform: openSection === section.id ? 'rotate(180deg)' : 'rotate(0deg)' }}>▾</span>
+            </div>
+          </div>
+
+          {openSection === section.id && (
+            <div className="admin-form" style={{ marginTop: 16 }}>
+              {section.fields.map(field => (
+                <div key={field.key}>
+                  {field.type === 'image' ? (
+                    <ImageUploadCrop
+                      value={settings[field.key] || ''}
+                      settingKey={field.key}
+                      aspectRatio={field.aspectRatio}
+                      label={field.label}
+                      adminKey={adminKey}
+                      displayWidth={Number(settings[field.widthKey!] || 100)}
+                      onChange={(url, w) => {
+                        set(field.key, url)
+                        if (field.widthKey) set(field.widthKey, String(w))
+                      }}
+                    />
+                  ) : field.type === 'textarea' ? (
+                    <div>
+                      <label>{field.label}</label>
+                      <textarea
+                        value={settings[field.key] || ''}
+                        placeholder={field.placeholder}
+                        onChange={e => set(field.key, e.target.value)}
+                        style={{ minHeight: 80 }}
+                      />
+                    </div>
+                  ) : (
+                    <div>
+                      <label>{field.label}</label>
+                      <input
+                        type="text"
+                        value={settings[field.key] || ''}
+                        placeholder={field.placeholder}
+                        onChange={e => set(field.key, e.target.value)}
+                      />
+                    </div>
+                  )}
+                </div>
+              ))}
+              <div style={{ marginTop: 20, display: 'flex', alignItems: 'center', gap: 16 }}>
+                <button className="admin-btn admin-btn-red" onClick={() => save(section.id)} disabled={saving}>
+                  {saving ? 'Kaydediliyor...' : 'Kaydet'}
+                </button>
+                {msg && <span className={`admin-msg ${msg.startsWith('H') ? 'error' : 'success'}`}>{msg}</span>}
+              </div>
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  )
+}
+
 function GalleryTab({ adminKey }: { adminKey: string }) {
   const { get, post, del } = useAdminFetch('gallery', adminKey)
   const [images, setImages] = useState<GalleryImg[]>([])
@@ -687,7 +803,7 @@ export default function AdminPage() {
   const [pw, setPw] = useState('')
   const [err, setErr] = useState('')
   const [adminKey, setAdminKey] = useState('')
-  const [activeTab, setActiveTab] = useState<Tab>('Genel Ayarlar')
+  const [activeTab, setActiveTab] = useState<Tab>('Sayfalar')
 
   useEffect(() => {
     const saved = sessionStorage.getItem('admin_key')
@@ -710,7 +826,7 @@ export default function AdminPage() {
   }
 
   const NAV_ICONS: Record<Tab, React.ReactNode> = {
-    'Genel Ayarlar': <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>,
+    'Sayfalar': <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>,
     'Menü': <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>,
     'Blog & Tarifler': <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>,
     'Galeri': <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>,
@@ -770,7 +886,7 @@ export default function AdminPage() {
 
       {/* Main */}
       <main className="admin-main">
-        {activeTab === 'Genel Ayarlar' && <SettingsTab adminKey={adminKey} />}
+        {activeTab === 'Sayfalar' && <PagesTab adminKey={adminKey} />}
         {activeTab === 'Menü' && <MenuTab adminKey={adminKey} />}
         {activeTab === 'Blog & Tarifler' && <BlogTab adminKey={adminKey} />}
         {activeTab === 'Galeri' && <GalleryTab adminKey={adminKey} />}

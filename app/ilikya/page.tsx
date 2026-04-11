@@ -2,6 +2,9 @@ import type { Metadata } from 'next'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 import Link from 'next/link'
+import { getSettings } from '@/lib/supabase'
+
+export const revalidate = 0
 
 export const metadata: Metadata = {
   title: 'İlikya | Doğal İlik Suyu',
@@ -61,14 +64,17 @@ const ozellikler = [
   { icon: '🏭', baslik: 'Hijyenik Üretim', aciklama: 'Endüstriyel sterilizasyon tüneli ile titiz üretim süreci' },
 ]
 
-export default function IlikyaPage() {
+export default async function IlikyaPage() {
+  const s = await getSettings()
   return (
     <>
       <Nav />
 
       {/* HERO */}
       <section style={{
-        background: 'linear-gradient(135deg, #C62828 0%, #B71C1C 50%, #7B1111 100%)',
+        background: s.ilikya_hero_image
+          ? `linear-gradient(rgba(0,0,0,0.45),rgba(0,0,0,0.45)), url(${s.ilikya_hero_image}) center/cover no-repeat`
+          : 'linear-gradient(135deg, #C62828 0%, #B71C1C 50%, #7B1111 100%)',
         paddingTop: '120px',
         paddingBottom: '80px',
         color: '#fff',

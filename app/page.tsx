@@ -37,7 +37,7 @@ export default async function Home() {
       <ScrollReveal />
 
       {/* ── HERO ── */}
-      <section className="hero" aria-label="Ana başlık">
+      <section className="hero" aria-label="Ana başlık" style={s.hero_image ? { backgroundImage: `url(${s.hero_image})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}>
         {/* Sol — beyaz */}
         <div className="hero-left">
           <div className="hero-inner">
@@ -137,12 +137,15 @@ export default async function Home() {
               </div>
             </div>
             <div className="about-img-wrap reveal reveal-d2">
-              <div className="about-img-bg">
-                {/* Fotoğraf eklendiğinde: <img src="/about.jpg" alt="Tandırcı Usta Restoran" /> */}
-                <div className="about-img-placeholder">
-                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
-                  <br />Restoran fotoğrafı ekleyin
-                </div>
+              <div className="about-img-bg" style={s.about_image_width ? { width: `${s.about_image_width}%` } : undefined}>
+                {s.about_image ? (
+                  <img src={s.about_image} alt="Tandırcı Usta Restoran" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 16 }} />
+                ) : (
+                  <div className="about-img-placeholder">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
+                    <br />Sayfalar &gt; Hakkımızda&apos;dan ekleyin
+                  </div>
+                )}
               </div>
             </div>
           </div>
