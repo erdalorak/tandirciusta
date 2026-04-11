@@ -17,11 +17,26 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  if (!auth(req)) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 })
+  if (!auth(req)) return NextResponse.json({ error: 'Yetkisiz — şifre yanlış' }, { status: 401 })
   const body = await req.json()
+
+  let payload: Record<string, unknown>
+  if (body.type === 'category') {
+    payload = { name: body.name, display_order: body.display_order ?? 0 }
+  } else {
+    payload = {
+      category_id: body.category_id,
+      name: body.name,
+      description: body.description ?? '',
+      price: body.price ?? '',
+      is_available: body.is_available ?? true,
+      is_featured: body.is_featured ?? false,
+      display_order: body.display_order ?? 0,
+    }
+    if (body.image_url) payload.image_url = body.image_url
+  }
+
   const table = body.type === 'category' ? 'menu_categories' : 'menu_items'
-  const payload = { ...body }
-  delete payload.type
   const { data, error } = await supabaseAdmin.from(table).insert(payload).select().single()
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(data, { status: 201 })

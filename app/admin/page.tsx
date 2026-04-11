@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 
 const TABS = ['Genel Ayarlar', 'Menü', 'Blog & Tarifler', 'Galeri'] as const
 type Tab = typeof TABS[number]
@@ -27,10 +27,16 @@ const SETTING_FIELDS = [
 
 function useAdminFetch(key: string, adminKey: string) {
   const headers = { 'Content-Type': 'application/json', 'x-admin-key': adminKey }
-  const get = useCallback((url: string) => fetch(url, { headers }).then(r => r.json()), [adminKey])
-  const post = useCallback((url: string, body: unknown) => fetch(url, { method: 'POST', headers, body: JSON.stringify(body) }).then(r => r.json()), [adminKey])
-  const put = useCallback((url: string, body: unknown) => fetch(url, { method: 'PUT', headers, body: JSON.stringify(body) }).then(r => r.json()), [adminKey])
-  const del = useCallback((url: string, body?: unknown) => fetch(url, { method: 'DELETE', headers, body: body ? JSON.stringify(body) : undefined }).then(r => r.json()), [adminKey])
+  const request = useCallback(async (url: string, opts?: RequestInit) => {
+    const r = await fetch(url, { headers, ...opts })
+    const data = await r.json()
+    if (!r.ok) throw new Error(data?.error || `HTTP ${r.status}`)
+    return data
+  }, [adminKey])
+  const get = useCallback((url: string) => request(url), [request])
+  const post = useCallback((url: string, body: unknown) => request(url, { method: 'POST', body: JSON.stringify(body) }), [request])
+  const put = useCallback((url: string, body: unknown) => request(url, { method: 'PUT', body: JSON.stringify(body) }), [request])
+  const del = useCallback((url: string, body?: unknown) => request(url, { method: 'DELETE', body: body ? JSON.stringify(body) : undefined }), [request])
   return { get, post, put, del }
   void key
 }
@@ -102,19 +108,25 @@ function MenuTab({ adminKey }: { adminKey: string }) {
   const [editItem, setEditItem] = useState<Item | null>(null)
   const [msg, setMsg] = useState('')
   const [uploading, setUploading] = useState(false)
+  const catInitialized = useRef(false)
 
   const load = useCallback(async () => {
-    const data = await get('/api/menu')
-    setCategories(data.categories ?? [])
-    setItems(data.items ?? [])
-    if (data.categories?.length && !form.category_id) {
-      setForm(f => ({ ...f, category_id: data.categories[0].id }))
+    try {
+      const data = await get('/api/menu')
+      setCategories(data.categories ?? [])
+      setItems(data.items ?? [])
+      if (data.categories?.length && !catInitialized.current) {
+        catInitialized.current = true
+        setForm(f => ({ ...f, category_id: data.categories[0].id }))
+      }
+    } catch (e: unknown) {
+      console.error('Menü yüklenemedi:', e)
     }
-  }, [get, form.category_id])
+  }, [get])
 
   useEffect(() => { load() }, [load])
 
-  const flash = (m: string) => { setMsg(m); setTimeout(() => setMsg(''), 3000) }
+  const flash = (m: string) => { setMsg(m); setTimeout(() => setMsg(''), 5000) }
 
   const addCat = async () => {
     if (!newCat.trim()) return
@@ -140,26 +152,50 @@ function MenuTab({ adminKey }: { adminKey: string }) {
   }
 
   const addItem = async () => {
-    if (!form.name.trim() || !form.category_id) return
-    await post('/api/menu', { type: 'item', ...form, is_available: true, display_order: items.length + 1 })
-    setForm(f => ({ ...f, name: '', description: '', price: '', image_url: '', is_featured: false }))
-    load(); flash('Ürün eklendi ✓')
+    if (!form.name.trim()) { flash('Ürün adı zorunlu'); return }
+    if (!form.category_id) { flash('Önce bir kategori seçin'); return }
+    try {
+      const payload: Record<string, unknown> = {
+        type: 'item',
+        category_id: form.category_id,
+        name: form.name.trim(),
+        description: form.description,
+        price: form.price,
+        is_available: true,
+        is_featured: form.is_featured,
+        display_order: items.length + 1,
+      }
+      if (form.image_url) payload.image_url = form.image_url
+      await post('/api/menu', payload)
+      setForm(f => ({ ...f, name: '', description: '', price: '', image_url: '', is_featured: false }))
+      load(); flash('Ürün eklendi ✓')
+    } catch (e: unknown) {
+      flash('Hata: ' + (e instanceof Error ? e.message : String(e)))
+    }
   }
 
   const toggleAvailable = async (item: Item) => {
-    await put(`/api/menu/${item.id}`, { type: 'item', is_available: !item.is_available })
-    load()
+    try {
+      await put(`/api/menu/${item.id}`, { type: 'item', is_available: !item.is_available })
+      load()
+    } catch (e: unknown) { flash('Hata: ' + (e instanceof Error ? e.message : String(e))) }
   }
 
   const saveEdit = async () => {
     if (!editItem) return
-    await put(`/api/menu/${editItem.id}`, { type: 'item', ...editItem })
-    setEditItem(null); load(); flash('Güncellendi ✓')
+    try {
+      const payload: Record<string, unknown> = { type: 'item', name: editItem.name, description: editItem.description, price: editItem.price, is_featured: editItem.is_featured, is_available: editItem.is_available, category_id: editItem.category_id }
+      if (editItem.image_url) payload.image_url = editItem.image_url
+      await put(`/api/menu/${editItem.id}`, payload)
+      setEditItem(null); load(); flash('Güncellendi ✓')
+    } catch (e: unknown) { flash('Hata: ' + (e instanceof Error ? e.message : String(e))) }
   }
 
   const deleteItem = async (id: string) => {
     if (!confirm('Bu ürünü sil?')) return
-    await del(`/api/menu/${id}`, { type: 'item' }); load()
+    try {
+      await del(`/api/menu/${id}`, { type: 'item' }); load()
+    } catch (e: unknown) { flash('Hata: ' + (e instanceof Error ? e.message : String(e))) }
   }
 
   return (
@@ -231,7 +267,7 @@ function MenuTab({ adminKey }: { adminKey: string }) {
           </label>
           <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 16 }}>
             <button className="admin-btn admin-btn-red" onClick={addItem}>Ürün Ekle</button>
-            {msg && <span className="admin-msg success">{msg}</span>}
+            {msg && <span className={`admin-msg ${msg.startsWith('Hata') ? 'error' : 'success'}`}>{msg}</span>}
           </div>
         </div>
       </div>
