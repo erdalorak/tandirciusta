@@ -150,11 +150,13 @@ body {
 .hero-hashtag {
   display: inline-block;
   background: #fff; color: var(--red);
-  font-family: var(--serif); font-size: 22px; font-weight: 700; font-style: italic;
-  letter-spacing: 0.5px;
-  padding: 10px 22px; border-radius: 10px;
-  margin-bottom: 16px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+  font-family: var(--serif); font-size: 15px; font-weight: 700; font-style: italic;
+  letter-spacing: 1px;
+  padding: 12px 16px; border-radius: 10px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.14);
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  white-space: nowrap;
 }
 
 /* ── BUTTONS ── */

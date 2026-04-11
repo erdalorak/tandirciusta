@@ -44,15 +44,11 @@ export default async function Home() {
               Kırşehir&apos;in Tandır Ustası · 1965&apos;den Beri
             </div>
             <h1 className="hero-title reveal reveal-d1">
-              {s.hero_title
-                ? s.hero_title.split(',').map((part, i) =>
-                    i === 1 ? <><br key={i} /><em>{part.trim()}</em></> : part
-                  )
-                : <><span>Ateşin Sabrıyla,</span><br /><em>Ustanın Elleriyle</em></>
-              }
+              <span>Her Ürünü</span><br /><em>Ustalık Eseri</em>
             </h1>
             <p className="hero-subtitle reveal reveal-d2">
-              {s.hero_subtitle || 'Geleneksel tandır fırınında, en taze malzemelerle pişirilmiş Anadolu lezzetleri.'}
+              Gelenekten doğan ustalık, modern sunumla yeniden hayat bulur.<br />
+              Bu sadece yemek değil, bir lezzet ritüeli.
             </p>
             <div className="hero-actions reveal reveal-d3">
               <a href="#menu" className="btn btn-red">Menüyü Gör</a>
