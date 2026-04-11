@@ -143,6 +143,15 @@ body {
 .hero-contact-item svg { width: 14px; height: 14px; stroke: var(--red); fill: none; stroke-width: 2; flex-shrink: 0; }
 .hero-contact-item a { color: var(--text); text-decoration: none; font-weight: 500; }
 .hero-contact-item a:hover { color: var(--red); }
+.hero-hashtag {
+  display: inline-block;
+  background: #fff; color: var(--red);
+  font-family: var(--serif); font-size: 22px; font-weight: 700; font-style: italic;
+  letter-spacing: 0.5px;
+  padding: 10px 22px; border-radius: 10px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+}
 
 /* ── BUTTONS ── */
 .btn {
@@ -514,9 +523,19 @@ body {
 /* ── RESPONSIVE ── */
 @media (max-width: 1024px) {
   .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
-  .hero-inner { grid-template-columns: 1fr; gap: 32px; }
-  .hero::before { width: 100%; height: 50%; top: auto; bottom: 0; clip-path: polygon(0 20%, 100% 0, 100% 100%, 0 100%); }
+  .hero-inner { grid-template-columns: 1fr; gap: 0; }
+  .hero::before { display: none; }
   .hero-map-card iframe { height: 220px; }
+  .hero-visual {
+    background: linear-gradient(135deg, var(--red) 0%, #8B1A12 100%);
+    margin: 0 -24px -80px;
+    padding: 32px 24px 56px;
+  }
+  .hero-hashtag { background: rgba(255,255,255,0.15); color: #fff; box-shadow: none; }
+  .hero-contact-strip { background: rgba(0,0,0,0.15); border-radius: 0 0 0 0; }
+  .hero-contact-item { color: rgba(255,255,255,0.9); }
+  .hero-contact-item svg { stroke: rgba(255,255,255,0.7); }
+  .hero-contact-item a { color: #fff; }
   .contact-grid { grid-template-columns: 1fr; }
   .about-grid { grid-template-columns: 1fr; gap: 40px; }
   .about-img-wrap { display: none; }

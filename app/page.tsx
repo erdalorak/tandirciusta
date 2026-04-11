@@ -68,6 +68,7 @@ export default async function Home() {
 
           {/* Harita kartı */}
           <div className="hero-visual reveal reveal-d2">
+            <div className="hero-hashtag">#MesleğinPîri</div>
             <div className="hero-map-card">
               <iframe
                 src={s.maps_embed_url || 'https://maps.google.com/maps?q=Ahievran+Mah+738+Sk+No+9+Kirsehir&t=&z=17&ie=UTF8&iwloc=&output=embed'}
