@@ -225,6 +225,9 @@ body {
 .menu-card-name { font-family: var(--serif); font-size: 20px; font-weight: 700; color: var(--black); line-height: 1.2; }
 .menu-card-price { font-size: 15px; font-weight: 700; color: var(--red); white-space: nowrap; margin-left: 12px; }
 .menu-card-desc { font-size: 13px; color: var(--muted); line-height: 1.65; }
+.menu-card-img { width: 100%; aspect-ratio: 4/3; overflow: hidden; }
+.menu-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.3s; }
+.menu-card:hover .menu-card-img img { transform: scale(1.04); }
 .menu-card-badge {
   display: inline-block; margin-top: 12px;
   font-size: 9px; font-weight: 700; letter-spacing: 1.5px;

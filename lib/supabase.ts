@@ -11,7 +11,7 @@ export type SiteSetting = { key: string; value: string }
 export type MenuCategory = { id: string; name: string; display_order: number }
 export type MenuItem = {
   id: string; category_id: string; name: string
-  description: string; price: string
+  description: string; price: string; image_url: string
   is_available: boolean; is_featured: boolean; display_order: number
 }
 export type BlogPost = {

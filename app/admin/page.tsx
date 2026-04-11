@@ -6,7 +6,7 @@ type Tab = typeof TABS[number]
 
 type Post = { id: string; title: string; slug: string; published: boolean; created_at: string; excerpt: string }
 type Category = { id: string; name: string; display_order: number }
-type Item = { id: string; category_id: string; name: string; description: string; price: string; is_available: boolean; is_featured: boolean; display_order: number }
+type Item = { id: string; category_id: string; name: string; description: string; price: string; image_url: string; is_available: boolean; is_featured: boolean; display_order: number }
 type GalleryImg = { id: string; url: string; caption: string; display_order: number }
 type Settings = Record<string, string>
 
@@ -98,9 +98,10 @@ function MenuTab({ adminKey }: { adminKey: string }) {
   const [categories, setCategories] = useState<Category[]>([])
   const [items, setItems] = useState<Item[]>([])
   const [newCat, setNewCat] = useState('')
-  const [form, setForm] = useState({ category_id: '', name: '', description: '', price: '', is_featured: false })
+  const [form, setForm] = useState({ category_id: '', name: '', description: '', price: '', image_url: '', is_featured: false })
   const [editItem, setEditItem] = useState<Item | null>(null)
   const [msg, setMsg] = useState('')
+  const [uploading, setUploading] = useState(false)
 
   const load = useCallback(async () => {
     const data = await get('/api/menu')
@@ -126,10 +127,22 @@ function MenuTab({ adminKey }: { adminKey: string }) {
     await del(`/api/menu/${id}`, { type: 'category' }); load()
   }
 
+  const uploadImage = async (file: File, onDone: (url: string) => void) => {
+    setUploading(true)
+    const fd = new FormData()
+    fd.append('file', file)
+    try {
+      const res = await fetch('/api/upload', { method: 'POST', headers: { 'x-admin-key': adminKey }, body: fd })
+      const data = await res.json()
+      if (!data.error) onDone(data.url)
+      else flash('Yükleme hatası: ' + data.error)
+    } finally { setUploading(false) }
+  }
+
   const addItem = async () => {
     if (!form.name.trim() || !form.category_id) return
     await post('/api/menu', { type: 'item', ...form, is_available: true, display_order: items.length + 1 })
-    setForm(f => ({ ...f, name: '', description: '', price: '', is_featured: false }))
+    setForm(f => ({ ...f, name: '', description: '', price: '', image_url: '', is_featured: false }))
     load(); flash('Ürün eklendi ✓')
   }
 
@@ -200,6 +213,18 @@ function MenuTab({ adminKey }: { adminKey: string }) {
           <input placeholder="Kuzu Tandır" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
           <label>Açıklama</label>
           <textarea placeholder="Saatlerce yavaş pişirilmiş..." value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} style={{ minHeight: 80 }} />
+          <label>Ürün Görseli (opsiyonel)</label>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            {form.image_url && <img src={form.image_url} alt="" style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: 8, border: '1px solid var(--border-g)' }} />}
+            <label style={{ cursor: 'pointer' }}>
+              <span className="admin-btn admin-btn-outline" style={{ pointerEvents: 'none' }}>
+                {uploading ? 'Yükleniyor...' : 'Fotoğraf Seç'}
+              </span>
+              <input type="file" accept="image/*" style={{ display: 'none' }} disabled={uploading}
+                onChange={e => { const f = e.target.files?.[0]; if (f) uploadImage(f, url => setForm(fm => ({ ...fm, image_url: url }))); e.target.value = '' }} />
+            </label>
+            {form.image_url && <button onClick={() => setForm(f => ({ ...f, image_url: '' }))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', fontSize: 18 }}>×</button>}
+          </div>
           <label className="admin-toggle">
             <input type="checkbox" checked={form.is_featured} onChange={e => setForm(f => ({ ...f, is_featured: e.target.checked }))} />
             <span>Öne çıkan ürün olarak işaretle</span>
@@ -277,6 +302,18 @@ function MenuTab({ adminKey }: { adminKey: string }) {
               <textarea value={editItem.description} onChange={e => setEditItem(i => i ? { ...i, description: e.target.value } : i)} style={{ minHeight: 80 }} />
               <label>Fiyat</label>
               <input value={editItem.price} onChange={e => setEditItem(i => i ? { ...i, price: e.target.value } : i)} />
+              <label>Ürün Görseli</label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                {editItem.image_url && <img src={editItem.image_url} alt="" style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: 8, border: '1px solid var(--border-g)' }} />}
+                <label style={{ cursor: 'pointer' }}>
+                  <span className="admin-btn admin-btn-outline" style={{ pointerEvents: 'none' }}>
+                    {uploading ? 'Yükleniyor...' : 'Fotoğraf Seç'}
+                  </span>
+                  <input type="file" accept="image/*" style={{ display: 'none' }} disabled={uploading}
+                    onChange={e => { const f = e.target.files?.[0]; if (f) uploadImage(f, url => setEditItem(i => i ? { ...i, image_url: url } : i)); e.target.value = '' }} />
+                </label>
+                {editItem.image_url && <button onClick={() => setEditItem(i => i ? { ...i, image_url: '' } : i)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', fontSize: 18 }}>×</button>}
+              </div>
               <label className="admin-toggle" style={{ marginTop: 12 }}>
                 <input type="checkbox" checked={editItem.is_featured} onChange={e => setEditItem(i => i ? { ...i, is_featured: e.target.checked } : i)} />
                 <span>Öne çıkan</span>

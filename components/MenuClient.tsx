@@ -38,6 +38,11 @@ export default function MenuClient({ categories, items }: Props) {
         ) : (
           filtered.map(item => (
             <div key={item.id} className="menu-card">
+              {item.image_url && (
+                <div className="menu-card-img">
+                  <img src={item.image_url} alt={item.name} loading="lazy" />
+                </div>
+              )}
               <div className="menu-card-top">
                 <div className="menu-card-name">{item.name}</div>
                 {item.price && <div className="menu-card-price">{item.price}</div>}
