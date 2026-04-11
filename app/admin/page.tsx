@@ -112,6 +112,8 @@ function MenuTab({ adminKey }: { adminKey: string }) {
   const [msg, setMsg] = useState('')
   const [uploading, setUploading] = useState(false)
   const catInitialized = useRef(false)
+  const dragItem = useRef<string | null>(null)
+  const dragOver = useRef<string | null>(null)
 
   const load = useCallback(async () => {
     try {
@@ -199,6 +201,35 @@ function MenuTab({ adminKey }: { adminKey: string }) {
     try {
       await del(`/api/menu/${id}`, { type: 'item' }); load()
     } catch (e: unknown) { flash('Hata: ' + (e instanceof Error ? e.message : String(e))) }
+  }
+
+  const handleDrop = async (categoryId: string) => {
+    if (!dragItem.current || !dragOver.current || dragItem.current === dragOver.current) return
+    const catItems = items.filter(i => i.category_id === categoryId).sort((a, b) => a.display_order - b.display_order)
+    const fromIdx = catItems.findIndex(i => i.id === dragItem.current)
+    const toIdx = catItems.findIndex(i => i.id === dragOver.current)
+    if (fromIdx === -1 || toIdx === -1) return
+    const reordered = [...catItems]
+    const [moved] = reordered.splice(fromIdx, 1)
+    reordered.splice(toIdx, 0, moved)
+    // Optimistic update
+    setItems(prev => {
+      const others = prev.filter(i => i.category_id !== categoryId)
+      const updated = reordered.map((item, idx) => ({ ...item, display_order: idx + 1 }))
+      return [...others, ...updated]
+    })
+    // Persist changed orders
+    try {
+      await Promise.all(
+        reordered.map((item, idx) =>
+          item.display_order !== idx + 1
+            ? put(`/api/menu/${item.id}`, { type: 'item', display_order: idx + 1 })
+            : Promise.resolve()
+        )
+      )
+    } catch (e: unknown) { flash('Sıra kaydedilemedi: ' + (e instanceof Error ? e.message : String(e))); load() }
+    dragItem.current = null
+    dragOver.current = null
   }
 
   return (
@@ -293,6 +324,7 @@ function MenuTab({ adminKey }: { adminKey: string }) {
             <table className="admin-table">
               <thead>
                 <tr>
+                  <th style={{ width: 28 }}></th>
                   <th>Ürün</th>
                   <th>Fiyat</th>
                   <th>Durum</th>
@@ -300,8 +332,17 @@ function MenuTab({ adminKey }: { adminKey: string }) {
                 </tr>
               </thead>
               <tbody>
-                {catItems.map(item => (
-                  <tr key={item.id}>
+                {catItems.sort((a, b) => a.display_order - b.display_order).map(item => (
+                  <tr key={item.id}
+                    draggable
+                    onDragStart={() => { dragItem.current = item.id }}
+                    onDragEnter={() => { dragOver.current = item.id }}
+                    onDragOver={e => e.preventDefault()}
+                    onDrop={() => handleDrop(cat.id)}
+                    style={{ cursor: 'grab', transition: 'opacity 0.15s' }}
+                    onDragEnd={() => { dragItem.current = null; dragOver.current = null }}
+                  >
+                    <td style={{ color: 'var(--muted)', fontSize: 18, textAlign: 'center', userSelect: 'none' }}>⠿</td>
                     <td>
                       <div style={{ fontWeight: 600 }}>{item.name}</div>
                       {item.description && <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>{item.description.slice(0, 60)}{item.description.length > 60 ? '...' : ''}</div>}
