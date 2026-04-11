@@ -32,8 +32,12 @@ export const metadata: Metadata = {
     description: 'Kırşehir\'de geleneksel tandır lezzetleri.',
     images: ['/og-image.jpg'],
   },
-  robots: { index: true, follow: true, googleBot: { index: true, follow: true } },
+  robots: { index: true, follow: true, googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1 } },
   alternates: { canonical: 'https://tandirciusta.com' },
+  icons: {
+    icon: '/icon.ico',
+    apple: '/apple-icon.png',
+  },
 }
 
 const jsonLd = {
