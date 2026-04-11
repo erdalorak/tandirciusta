@@ -199,7 +199,7 @@ export default async function Home() {
           </div>
           <div className="brands-grid" style={{maxWidth:420}}>
             <Link href="/ilikya" className="brand-card reveal reveal-d1" style={{textDecoration:'none'}}>
-              <img src="/ilikya/logo.png" alt="İlikya" style={{height:72, objectFit:'contain', marginBottom:16, borderRadius:8}} />
+              <img src="/ilikya/ilikya-logo.png" alt="İlikya" style={{height:72, objectFit:'contain', marginBottom:16, borderRadius:8}} />
               <div className="brand-name">İlikya</div>
               <div className="brand-desc">Dana kemiklerinden elde edilen doğal ve katkısız ilik suyu. Yüksek kolajen içeriği, 6 farklı aroma, cam kavanoz ambalaj.</div>
               <span className="brand-tag">Yakında →</span>
