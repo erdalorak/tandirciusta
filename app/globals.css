@@ -100,14 +100,18 @@ body {
 .hero::before {
   content: '';
   position: absolute; top: 0; right: 0;
-  width: 45%; height: 100%;
+  width: 50%; height: 100%;
   background: linear-gradient(135deg, var(--red) 0%, #8B1A12 100%);
-  clip-path: polygon(12% 0, 100% 0, 100% 100%, 0 100%);
+  clip-path: polygon(16% 0, 100% 0, 100% 100%, 0 100%);
 }
 .hero-inner {
   position: relative; z-index: 2;
   max-width: 1140px; margin: 0 auto; padding: 80px 24px;
-  display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;
+  display: grid; grid-template-columns: 1fr 100px 1fr; gap: 0; align-items: center;
+}
+.hero-center-col {
+  display: flex; align-items: center; justify-content: center;
+  z-index: 3;
 }
 .hero-badge {
   display: inline-flex; align-items: center; gap: 8px;
@@ -524,6 +528,7 @@ body {
 @media (max-width: 1024px) {
   .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
   .hero-inner { grid-template-columns: 1fr; gap: 0; }
+  .hero-center-col { display: none; }
   .hero::before { display: none; }
   .hero-map-card iframe { height: 220px; }
   .hero-visual {
