@@ -6,7 +6,7 @@ import { supabase, getSettings } from '@/lib/supabase'
 import type { MenuCategory, MenuItem, BlogPost, GalleryImage } from '@/lib/supabase'
 import Link from 'next/link'
 
-export const revalidate = 60
+export const revalidate = 0
 
 async function getData() {
   const [settings, categoriesRes, itemsRes, postsRes, galleryRes] = await Promise.all([
