@@ -66,6 +66,11 @@ export default async function Home() {
             </div>
           </div>
 
+          {/* Orta logo */}
+          <div className="hero-center-logo reveal">
+            <img src="/logo-round.png" alt="Tandırcı Usta" />
+          </div>
+
           {/* Harita kartı */}
           <div className="hero-visual reveal reveal-d2">
             <div className="hero-map-card">

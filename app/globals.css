@@ -106,8 +106,15 @@ body {
 }
 .hero-inner {
   position: relative; z-index: 2;
-  max-width: 1140px; margin: 0 auto; padding: 80px 24px;
-  display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;
+  max-width: 1200px; margin: 0 auto; padding: 80px 24px;
+  display: grid; grid-template-columns: 1.2fr auto 1fr; gap: 40px; align-items: center;
+}
+.hero-center-logo {
+  display: flex; align-items: center; justify-content: center;
+}
+.hero-center-logo img {
+  width: 160px; height: 160px; object-fit: contain;
+  filter: drop-shadow(0 4px 20px rgba(0,0,0,0.15));
 }
 .hero-badge {
   display: inline-flex; align-items: center; gap: 8px;
@@ -517,6 +524,7 @@ body {
   .hero-inner { grid-template-columns: 1fr; }
   .hero::before { width: 100%; height: 50%; top: auto; bottom: 0; clip-path: polygon(0 20%, 100% 0, 100% 100%, 0 100%); }
   .hero-visual { display: none; }
+  .hero-center-logo { display: none; }
   .contact-grid { grid-template-columns: 1fr; }
   .about-grid { grid-template-columns: 1fr; gap: 40px; }
   .about-img-wrap { display: none; }
