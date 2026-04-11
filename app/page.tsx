@@ -146,11 +146,6 @@ export default async function Home() {
                   <br />Restoran fotoğrafı ekleyin
                 </div>
               </div>
-              <div className="about-accent">
-                <div className="about-accent-num">Est.</div>
-                <div className="about-accent-num">2014</div>
-                <div className="about-accent-label">Kırşehir&apos;de</div>
-              </div>
             </div>
           </div>
         </div>
