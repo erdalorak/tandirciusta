@@ -29,7 +29,9 @@
       "Bash(cp \"C:\\\\Users\\\\ERDAL\\\\OneDrive\\\\Masaüstü\\\\TANDIRCI USTA LOGO\\\\BASKI\\\\JPEG\\\\YUVARLAK LOGO\\\\tandirci-usta-yuvarlak-logo-kirmizi.jpg\" \"C:\\\\Users\\\\ERDAL\\\\OneDrive\\\\Masaüstü\\\\tandirciustacom\\\\public\\\\logo-round.jpg\")",
       "Read(//c/Users/ERDAL/AppData/Roaming/Claude/local-agent-mode-sessions/skills-plugin/2db87be5-b094-4b05-a083-c9605a3701c1/1fdb6f49-7e20-4280-bf90-47f8c247a61c/skills/pptx/**)",
       "Bash(python -m markitdown \"C:\\\\Users\\\\ERDAL\\\\OneDrive\\\\Masaüstü\\\\ilikya iş planı sunumu.pptx\")",
-      "Bash(pip install:*)"
+      "Bash(pip install:*)",
+      "Bash(findstr ADMIN)",
+      "Bash(del .env.check)"
     ]
   }
 }

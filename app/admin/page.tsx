@@ -26,13 +26,16 @@ const SETTING_FIELDS = [
 ]
 
 function useAdminFetch(key: string, adminKey: string) {
-  const headers = { 'Content-Type': 'application/json', 'x-admin-key': adminKey }
+  const keyRef = useRef(adminKey)
+  useEffect(() => { keyRef.current = adminKey }, [adminKey])
+
   const request = useCallback(async (url: string, opts?: RequestInit) => {
-    const r = await fetch(url, { headers, ...opts })
+    const headers: Record<string, string> = { 'Content-Type': 'application/json', 'x-admin-key': keyRef.current }
+    const r = await fetch(url, { ...opts, headers })
     const data = await r.json()
     if (!r.ok) throw new Error(data?.error || `HTTP ${r.status}`)
     return data
-  }, [adminKey])
+  }, [])
   const get = useCallback((url: string) => request(url), [request])
   const post = useCallback((url: string, body: unknown) => request(url, { method: 'POST', body: JSON.stringify(body) }), [request])
   const put = useCallback((url: string, body: unknown) => request(url, { method: 'PUT', body: JSON.stringify(body) }), [request])
