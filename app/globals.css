@@ -47,10 +47,10 @@ body {
 .nav.scrolled { border-color: var(--border-g); box-shadow: var(--shadow); }
 .nav-inner {
   max-width: 1140px; margin: 0 auto; padding: 0 24px;
-  height: 68px; display: flex; align-items: center; justify-content: space-between;
+  height: 90px; display: flex; align-items: center; justify-content: space-between;
 }
 .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-.nav-logo img { height: 40px; width: auto; }
+.nav-logo img { height: 80px; width: auto; }
 .nav-logo-text { font-family: var(--serif); font-size: 20px; font-weight: 700; color: var(--black); }
 .nav-logo-text span { color: var(--red); }
 .nav-links { display: flex; gap: 8px; list-style: none; align-items: center; }
