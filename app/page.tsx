@@ -41,7 +41,7 @@ export default async function Home() {
         <div className="hero-inner">
           <div>
             <div className="hero-badge reveal">
-              Kırşehir&apos;in Tandır Ustası · Est. 2014
+              Kırşehir&apos;in Tandır Ustası · 1965&apos;den Beri
             </div>
             <h1 className="hero-title reveal reveal-d1">
               {s.hero_title
