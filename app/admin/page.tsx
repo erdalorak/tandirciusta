@@ -212,12 +212,20 @@ function MenuTab({ adminKey }: { adminKey: string }) {
       </div>
 
       {/* Ürün Listesi */}
+      {items.length === 0 && categories.length > 0 && (
+        <div className="admin-card">
+          <div className="admin-empty">Henüz ürün eklenmedi. Yukarıdaki formdan ürün ekleyin.</div>
+        </div>
+      )}
       {categories.map(cat => {
         const catItems = items.filter(i => i.category_id === cat.id)
         if (catItems.length === 0) return null
         return (
           <div key={cat.id} className="admin-card">
-            <div className="admin-card-title">{cat.name} ({catItems.length} ürün)</div>
+            <div className="admin-card-title" style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span>{cat.name}</span>
+              <span style={{ fontWeight: 400, fontSize: 13, color: 'var(--muted)' }}>{catItems.length} ürün</span>
+            </div>
             <table className="admin-table">
               <thead>
                 <tr>
@@ -232,12 +240,12 @@ function MenuTab({ adminKey }: { adminKey: string }) {
                   <tr key={item.id}>
                     <td>
                       <div style={{ fontWeight: 600 }}>{item.name}</div>
-                      {item.description && <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>{item.description.slice(0, 60)}...</div>}
+                      {item.description && <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>{item.description.slice(0, 60)}{item.description.length > 60 ? '...' : ''}</div>}
                       {item.is_featured && <span className="badge badge-red" style={{ marginTop: 4, display: 'inline-block' }}>⭐ Öne Çıkan</span>}
                     </td>
                     <td>{item.price || '—'}</td>
                     <td>
-                      <button onClick={() => toggleAvailable(item)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                      <button onClick={() => toggleAvailable(item)} style={{ background: 'none', border: 'none', cursor: 'pointer' }} title="Tıkla: Aktif/Pasif değiştir">
                         <span className={`badge ${item.is_available ? 'badge-green' : 'badge-gray'}`}>
                           {item.is_available ? 'Aktif' : 'Pasif'}
                         </span>
@@ -453,8 +461,9 @@ function BlogTab({ adminKey }: { adminKey: string }) {
 function GalleryTab({ adminKey }: { adminKey: string }) {
   const { get, post, del } = useAdminFetch('gallery', adminKey)
   const [images, setImages] = useState<GalleryImg[]>([])
-  const [form, setForm] = useState({ url: '', caption: '', display_order: 0 })
+  const [caption, setCaption] = useState('')
   const [msg, setMsg] = useState('')
+  const [uploading, setUploading] = useState(false)
 
   const load = useCallback(async () => {
     const data = await get('/api/gallery')
@@ -463,11 +472,29 @@ function GalleryTab({ adminKey }: { adminKey: string }) {
 
   useEffect(() => { load() }, [load])
 
-  const add = async () => {
-    if (!form.url.trim()) return
-    await post('/api/gallery', { ...form, display_order: images.length + 1 })
-    setForm({ url: '', caption: '', display_order: 0 })
-    load(); setMsg('Eklendi ✓'); setTimeout(() => setMsg(''), 2000)
+  const flash = (m: string, delay = 3000) => { setMsg(m); setTimeout(() => setMsg(''), delay) }
+
+  const uploadFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    const fd = new FormData()
+    fd.append('file', file)
+    try {
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { 'x-admin-key': adminKey },
+        body: fd,
+      })
+      const data = await res.json()
+      if (data.error) { flash('Hata: ' + data.error); return }
+      await post('/api/gallery', { url: data.url, caption, display_order: images.length + 1 })
+      setCaption('')
+      e.target.value = ''
+      load(); flash('Fotoğraf yüklendi ✓')
+    } finally {
+      setUploading(false)
+    }
   }
 
   const remove = async (id: string) => {
@@ -479,35 +506,40 @@ function GalleryTab({ adminKey }: { adminKey: string }) {
     <div>
       <div className="admin-header">
         <div className="admin-page-title">Galeri</div>
-        <div className="admin-page-sub">Fotoğraf URL'lerini ekleyin. Google Drive, Imgur veya başka bir CDN kullanabilirsiniz.</div>
+        <div className="admin-page-sub">Bilgisayarınızdan fotoğraf yükleyin. JPG, PNG, WebP desteklenir.</div>
       </div>
 
       <div className="admin-card">
-        <div className="admin-card-title">Yeni Fotoğraf Ekle</div>
+        <div className="admin-card-title">Fotoğraf Yükle</div>
         <div className="admin-form">
-          <label>Fotoğraf URL *</label>
-          <input
-            placeholder="https://drive.google.com/uc?id=... veya https://i.imgur.com/..."
-            value={form.url}
-            onChange={e => setForm(f => ({ ...f, url: e.target.value }))}
-          />
           <label>Açıklama (opsiyonel)</label>
           <input
-            placeholder="Kuzu Tandır"
-            value={form.caption}
-            onChange={e => setForm(f => ({ ...f, caption: e.target.value }))}
+            placeholder="Kuzu Tandır, Restoran, vb."
+            value={caption}
+            onChange={e => setCaption(e.target.value)}
           />
-          <div style={{ marginTop: 16, display: 'flex', gap: 12, alignItems: 'center' }}>
-            <button className="admin-btn admin-btn-red" onClick={add}>Ekle</button>
-            {msg && <span className="admin-msg success">{msg}</span>}
-          </div>
+          <label style={{ marginTop: 8 }}>Fotoğraf Seç *</label>
+          <label style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            border: '2px dashed var(--border-g)', borderRadius: 10, padding: '28px 20px',
+            cursor: 'pointer', background: 'var(--bg2)', gap: 8,
+          }}>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ color: 'var(--muted)' }}>
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            <span style={{ fontSize: 13, color: 'var(--muted)' }}>{uploading ? 'Yükleniyor...' : 'Tıkla veya sürükle'}</span>
+            <input type="file" accept="image/*" style={{ display: 'none' }} onChange={uploadFile} disabled={uploading} />
+          </label>
+          {msg && <span className={`admin-msg ${msg.startsWith('H') ? 'error' : 'success'}`}>{msg}</span>}
         </div>
       </div>
 
       <div className="admin-card">
         <div className="admin-card-title">Galerindeki Fotoğraflar ({images.length})</div>
         {images.length === 0 ? (
-          <div className="admin-empty">Henüz fotoğraf yok. Yukarıdan ekleyin.</div>
+          <div className="admin-empty">Henüz fotoğraf yok. Yukarıdan yükleyin.</div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12, marginTop: 8 }}>
             {images.map(img => (
@@ -516,7 +548,7 @@ function GalleryTab({ adminKey }: { adminKey: string }) {
                   src={img.url}
                   alt={img.caption}
                   style={{ width: '100%', aspectRatio: '4/3', objectFit: 'cover', display: 'block' }}
-                  onError={e => { (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="75"><rect fill="%23f0ebe3" width="100" height="75"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="10" fill="%23888">Yüklenemedi</text></svg>' }}
+                  onError={e => { (e.target as HTMLImageElement).style.background = '#f0ebe3' }}
                 />
                 <div style={{ padding: '8px 10px', background: 'var(--bg)' }}>
                   <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 6 }}>{img.caption || 'Açıklama yok'}</div>
