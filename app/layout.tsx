@@ -38,6 +38,9 @@ export const metadata: Metadata = {
     icon: '/icon.ico',
     apple: '/apple-icon.png',
   },
+  verification: {
+    google: '1Ui2ESAlJRKjxHhQjGs3eiJjw_qr-q2vHHXVVLugVgY',
+  },
 }
 
 const jsonLd = {
