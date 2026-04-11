@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(unzip -l tandirciusta.zip)",
+      "Bash(unzip -o tandirciusta.zip -d /c/Users/ERDAL/OneDrive/Masaüstü/tandirciustacom_extract)"
+    ]
+  }
+}
