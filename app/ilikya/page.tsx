@@ -74,7 +74,7 @@ export default function IlikyaPage() {
         color: '#fff',
       }}>
         <div className="container" style={{display:'flex', flexDirection:'column', alignItems:'center', textAlign:'center', gap:32}}>
-          <img src="/ilikya/ilikya-logo.png" alt="İlikya" style={{height:140, objectFit:'contain', mixBlendMode:'multiply', filter:'brightness(1.1)'}} />
+          <img src="/ilikya/ilikya-logo.png" alt="İlikya" style={{height:140, objectFit:'contain', mixBlendMode:'lighten'}} />
           <div>
             <p style={{fontSize:13, fontWeight:600, letterSpacing:'0.15em', textTransform:'uppercase', opacity:0.8, marginBottom:12}}>
               Tandırcı Usta Ailesinden
