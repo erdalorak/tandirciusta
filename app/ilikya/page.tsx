@@ -111,7 +111,7 @@ export default function IlikyaPage() {
           <div style={{display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(300px,1fr))', gap:24}}>
             {seriler.map((s, i) => (
               <div key={i} style={{background:'#fff', border:'1.5px solid #e8e0d5', borderRadius:16, overflow:'hidden', boxShadow:'0 2px 12px rgba(0,0,0,0.06)'}}>
-                <img src={s.img} alt={s.ad} style={{width:'100%', height:200, objectFit:'cover'}} />
+                <img src={s.img} alt={s.ad} style={{width:'100%', height:240, objectFit:'contain', background:'#f8f5f0', padding:'12px 0'}} />
                 <div style={{padding:'20px 24px'}}>
                   <div style={{fontFamily:'Georgia,serif', fontSize:18, fontWeight:700, marginBottom:8, color:'#1a1a1a'}}>{s.ad}</div>
                   <div style={{fontSize:13, color:'#666', lineHeight:1.65}}>{s.aciklama}</div>
