@@ -8,15 +8,43 @@ import Link from 'next/link'
 export const revalidate = 0
 
 export const metadata: Metadata = {
-  title: 'Blog & Tarifler',
-  description: 'Tandırcı Usta\'dan geleneksel Anadolu tarifleri, tandır pişirme ipuçları ve Kırşehir mutfağı üzerine yazılar.',
+  title: 'Blog & Tarifler | Geleneksel Anadolu Tarifleri',
+  description: 'Tandırcı Usta\'dan geleneksel Anadolu tarifleri: kuzu tandır, mercimek çorbası, işkembe çorbası ve daha fazlası. Adım adım tarifler, püf noktaları ve ustasından tüyolar.',
   alternates: { canonical: 'https://tandirciusta.com/blog' },
+  openGraph: {
+    title: 'Blog & Tarifler | Tandırcı Usta',
+    description: 'Geleneksel Anadolu tarifleri, tandır pişirme ipuçları ve Kırşehir mutfağı üzerine yazılar.',
+    url: 'https://tandirciusta.com/blog',
+    siteName: 'Tandırcı Usta',
+    locale: 'tr_TR',
+    type: 'website',
+  },
+}
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Ana Sayfa', item: 'https://tandirciusta.com' },
+    { '@type': 'ListItem', position: 2, name: 'Blog & Tarifler', item: 'https://tandirciusta.com/blog' },
+  ],
+}
+
+const collectionSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: 'Blog & Tarifler | Tandırcı Usta',
+  description: 'Tandırcı Usta\'dan geleneksel Anadolu ve tandır tarifleri.',
+  url: 'https://tandirciusta.com/blog',
+  inLanguage: 'tr-TR',
+  isPartOf: { '@id': 'https://tandirciusta.com/#website' },
 }
 
 export default async function BlogPage() {
   const [s, { data: posts }] = await Promise.all([
     getSettings(),
-    supabase.from('blog_posts')
+    supabase
+      .from('blog_posts')
       .select('id,title,slug,excerpt,cover_image_url,created_at')
       .eq('published', true)
       .order('created_at', { ascending: false }),
@@ -27,9 +55,19 @@ export default async function BlogPage() {
   return (
     <>
       <Nav />
+
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }} />
+
       <div className="blog-page-hero">
         <div className="container">
-          <p className="eyebrow">Blog & Tarifler</p>
+          {/* Görsel Breadcrumb */}
+          <nav className="post-breadcrumb" aria-label="Breadcrumb">
+            <Link href="/" className="post-breadcrumb-link">Ana Sayfa</Link>
+            <span className="post-breadcrumb-sep">›</span>
+            <span className="post-breadcrumb-current">Blog & Tarifler</span>
+          </nav>
+          <p className="eyebrow" style={{ marginTop: 16 }}>Blog & Tarifler</p>
           <h1 className="blog-page-title">Geleneksel <em>Tarifler</em></h1>
           <p style={{ color: 'var(--muted)', fontSize: 16, marginTop: 12, maxWidth: 520, lineHeight: 1.7 }}>
             Tandır pişirme sanatı, geleneksel Anadolu tarifleri ve mutfaktan ipuçları.
@@ -50,7 +88,11 @@ export default async function BlogPage() {
                 <Link key={post.id} href={`/blog/${post.slug}`} className="blog-card">
                   <div className="blog-card-img">
                     {post.cover_image_url
-                      ? <img src={post.cover_image_url} alt={post.title} loading="lazy" />
+                      ? <img
+                          src={post.cover_image_url}
+                          alt={`${post.title} - Tandırcı Usta Kırşehir`}
+                          loading="lazy"
+                        />
                       : <span className="blog-card-img-placeholder">Fotoğraf yok</span>
                     }
                   </div>

@@ -32,10 +32,11 @@ export default function Nav() {
           <ul className="nav-links">
             <li><a href="/#menu">Menü</a></li>
             <li><a href="/#hakkimizda">Hakkımızda</a></li>
-            <li><a href="/#galeri">Galeri</a></li>
+            <li><a href="/#yorumlar">Yorumlar</a></li>
             <li><a href="/#markalar">Markalar</a></li>
             <li><Link href="/blog">Blog & Tarifler</Link></li>
-            <li><a href="/#iletisim" className="nav-cta">İletişim & Konum</a></li>
+            <li><a href="/#iletisim">İletişim</a></li>
+            <li><a href="/#rezervasyon" className="nav-cta">Rezervasyon</a></li>
           </ul>
 
           <button className="hamburger" onClick={() => setOpen(o => !o)} aria-label="Menüyü aç">
@@ -49,9 +50,10 @@ export default function Nav() {
         <button className="mobile-close" onClick={close}>✕</button>
         <a href="/#menu" onClick={close}>Menü</a>
         <a href="/#hakkimizda" onClick={close}>Hakkımızda</a>
-        <a href="/#galeri" onClick={close}>Galeri</a>
+        <a href="/#yorumlar" onClick={close}>Yorumlar</a>
         <a href="/#markalar" onClick={close}>Markalar</a>
         <Link href="/blog" onClick={close}>Blog & Tarifler</Link>
+        <a href="/#rezervasyon" onClick={close}>Rezervasyon</a>
         <a href="/#iletisim" onClick={close}>İletişim & Konum</a>
       </div>
     </>

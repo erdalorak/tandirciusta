@@ -80,10 +80,10 @@ export default async function IlikyaPage() {
         color: '#fff',
       }}>
         <div className="container" style={{display:'flex', flexDirection:'column', alignItems:'center', textAlign:'center', gap:32}}>
-          <img src="/ilikya/ilikya-logo.png" alt="İlikya" style={{height:140, objectFit:'contain'}} />
+          <img src="/ilikya/ilikya-logo-white.png" alt="İlikya" style={{height:280, objectFit:'contain'}} />
           <div>
             <p style={{fontSize:13, fontWeight:600, letterSpacing:'0.15em', textTransform:'uppercase', opacity:0.8, marginBottom:12}}>
-              Tandırcı Usta Ailesinden
+              Tandırcı Usta® Ailesinden
             </p>
             <h1 style={{fontFamily:'Georgia,serif', fontSize:'clamp(2rem,5vw,3.5rem)', fontWeight:700, lineHeight:1.2, marginBottom:16}}>
               Doğal ve Katkısız<br /><em style={{fontStyle:'italic'}}>İlik Suyu</em>

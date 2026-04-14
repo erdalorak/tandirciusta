@@ -24,7 +24,7 @@ export default function Footer({
       <div className="container">
         <div className="footer-grid">
           <div>
-            <div className="footer-logo-text">Tandırcı Usta</div>
+            <div className="footer-logo-text">Tandırcı Usta®</div>
             <p className="footer-desc">
               Kırşehir&apos;in geleneksel tandır restoranı. Ateşin sabrıyla, ustanın elleriyle pişirilmiş Anadolu lezzetleri.
             </p>
@@ -62,7 +62,7 @@ export default function Footer({
 
         <div className="footer-bottom">
           <div className="footer-copy">
-            © {new Date().getFullYear()} Tandırcı Usta · Tüm hakları saklıdır.
+            © {new Date().getFullYear()} Tandırcı Usta® · Tüm hakları saklıdır.
           </div>
           <div className="footer-social">
             <a href={instagram} target="_blank" rel="noopener" aria-label="Instagram">
