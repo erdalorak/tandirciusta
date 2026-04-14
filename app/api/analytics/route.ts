@@ -87,13 +87,22 @@ export async function GET(req: NextRequest) {
   if (!auth(req)) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 })
 
   const url = new URL(req.url)
+  const from = url.searchParams.get('from')
+  const to   = url.searchParams.get('to')
   const days = Math.min(parseInt(url.searchParams.get('days') || '30'), 90)
-  const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString()
+
+  const since = from
+    ? new Date(from + 'T00:00:00').toISOString()
+    : new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString()
+  const until = to
+    ? new Date(to + 'T23:59:59').toISOString()
+    : new Date().toISOString()
 
   const { data, error } = await supabaseAdmin
     .from('page_views')
     .select('*')
     .gte('created_at', since)
+    .lte('created_at', until)
     .order('created_at', { ascending: false })
     .limit(2000)
 

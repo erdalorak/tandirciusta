@@ -1026,29 +1026,48 @@ function timeAgo(dateStr: string): string {
 }
 
 function IstatistiklerTab({ adminKey }: { adminKey: string }) {
-  const [raw, setRaw] = useState<VisitRow[]>([])
-  const [loading, setLoading] = useState(true)
-  const [period, setPeriod] = useState<1 | 7 | 30>(7)
+  const toIso = (d: Date) => d.toISOString().slice(0, 10)
+  const todayIso = toIso(new Date())
 
-  const load = useCallback(async () => {
+  const initFrom = () => { const d = new Date(); d.setDate(d.getDate() - 6); return toIso(d) }
+  const [dateFrom, setDateFrom] = useState(initFrom)
+  const [dateTo, setDateTo]     = useState(todayIso)
+  const [customFrom, setCustomFrom] = useState(initFrom)
+  const [customTo, setCustomTo]     = useState(todayIso)
+  const [activePreset, setActivePreset] = useState('7g')
+  const [data, setData]   = useState<VisitRow[]>([])
+  const [loading, setLoading] = useState(true)
+
+  const loadData = useCallback(async (from: string, to: string) => {
     setLoading(true)
     try {
-      const res = await fetch('/api/analytics?days=30', { headers: { 'x-admin-key': adminKey } })
+      const res = await fetch(`/api/analytics?from=${from}&to=${to}`, { headers: { 'x-admin-key': adminKey } })
       const json = await res.json()
-      setRaw(Array.isArray(json) ? json : [])
+      setData(Array.isArray(json) ? json : [])
     } catch { /* silent */ }
     setLoading(false)
   }, [adminKey])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => { loadData(dateFrom, dateTo) }, [loadData, dateFrom, dateTo])
 
-  const cutoff = new Date(Date.now() - period * 24 * 60 * 60 * 1000)
-  const data = raw.filter(d => new Date(d.created_at) >= cutoff)
+  const applyPreset = (key: string) => {
+    const today = new Date()
+    let from = todayIso
+    if (key === 'dun')  { const d = new Date(); d.setDate(d.getDate() - 1); from = toIso(d) }
+    if (key === '7g')   { const d = new Date(); d.setDate(d.getDate() - 6); from = toIso(d) }
+    if (key === '30g')  { const d = new Date(); d.setDate(d.getDate() - 29); from = toIso(d) }
+    if (key === '90g')  { const d = new Date(); d.setDate(d.getDate() - 89); from = toIso(d) }
+    const to = key === 'dun' ? from : toIso(today)
+    setActivePreset(key); setDateFrom(from); setDateTo(to)
+    setCustomFrom(from); setCustomTo(to)
+  }
 
+  const applyCustom = () => { setActivePreset(''); setDateFrom(customFrom); setDateTo(customTo) }
+
+  // ── İstatistikler ──
   const totalVisits = data.length
-  const uniqueIPs = new Set(data.map(d => d.ip)).size
-  const today = new Date().toDateString()
-  const todayVisits = data.filter(d => new Date(d.created_at).toDateString() === today).length
+  const uniqueIPs   = new Set(data.map(d => d.ip)).size
+  const todayVisits = data.filter(d => d.created_at.startsWith(todayIso)).length
 
   const topCountries = Object.entries(
     data.reduce((acc, d) => {
@@ -1075,28 +1094,62 @@ function IstatistiklerTab({ adminKey }: { adminKey: string }) {
     }, {} as Record<string, number>)
   ).sort((a, b) => b[1] - a[1]).slice(0, 10)
 
-  const recent = data.slice(0, 50)
-  const maxCount = topCountries[0]?.[1].count || 1
-  const maxPageCount = topPages[0]?.[1] || 1
+  const maxCountry  = topCountries[0]?.[1].count || 1
+  const maxPage     = topPages[0]?.[1] || 1
 
-  const PERIOD_LABELS: Record<number, string> = { 1: 'Bugün', 7: '7 Gün', 30: '30 Gün' }
+  // ── Günlük grafik ──
+  const visitsByDay = data.reduce((acc, d) => {
+    const day = d.created_at.slice(0, 10)
+    acc[day] = (acc[day] || 0) + 1
+    return acc
+  }, {} as Record<string, number>)
+
+  const chartDays: { date: string; label: string; count: number }[] = []
+  for (let d = new Date(dateFrom); toIso(d) <= dateTo; d.setDate(d.getDate() + 1)) {
+    const iso = toIso(d)
+    chartDays.push({ date: iso, label: d.toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit' }), count: visitsByDay[iso] || 0 })
+  }
+  const maxDay = Math.max(...chartDays.map(d => d.count), 1)
+  const showAllLabels = chartDays.length <= 14
+
+  const PRESETS = [
+    { key: 'bugun', label: 'Bugün' }, { key: 'dun', label: 'Dün' },
+    { key: '7g', label: '7 Gün' }, { key: '30g', label: '30 Gün' }, { key: '90g', label: '90 Gün' },
+  ]
 
   return (
     <div>
       <div className="admin-header">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 12 }}>
           <div>
             <div className="admin-page-title">İstatistikler</div>
             <div className="admin-page-sub">Ziyaretçi sayısı, konumlar ve sayfa görüntülemeleri.</div>
           </div>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            {([1, 7, 30] as const).map(p => (
-              <button key={p} onClick={() => setPeriod(p)}
-                className={`admin-btn ${period === p ? 'admin-btn-red' : 'admin-btn-outline'}`}>
-                {PERIOD_LABELS[p]}
-              </button>
-            ))}
-            <button className="admin-btn admin-btn-outline" onClick={load}>↻</button>
+          <button className="admin-btn admin-btn-outline" onClick={() => loadData(dateFrom, dateTo)}>↻ Yenile</button>
+        </div>
+      </div>
+
+      {/* Tarih Filtresi */}
+      <div className="admin-card" style={{ marginBottom: 20, padding: '16px 20px' }}>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+          {PRESETS.map(p => (
+            <button key={p.key} onClick={() => applyPreset(p.key)}
+              className={`admin-btn ${activePreset === p.key ? 'admin-btn-red' : 'admin-btn-outline'}`}
+              style={{ fontSize: 12, padding: '6px 12px' }}>
+              {p.label}
+            </button>
+          ))}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginLeft: 4, flexWrap: 'wrap' }}>
+            <input type="date" value={customFrom}
+              onChange={e => { setCustomFrom(e.target.value); setActivePreset('') }}
+              style={{ padding: '6px 10px', border: '1.5px solid var(--border-g)', borderRadius: 7, fontSize: 12, fontFamily: 'var(--sans)', background: 'var(--bg)', color: 'var(--text)' }} />
+            <span style={{ color: 'var(--muted)', fontSize: 12 }}>–</span>
+            <input type="date" value={customTo}
+              onChange={e => { setCustomTo(e.target.value); setActivePreset('') }}
+              style={{ padding: '6px 10px', border: '1.5px solid var(--border-g)', borderRadius: 7, fontSize: 12, fontFamily: 'var(--sans)', background: 'var(--bg)', color: 'var(--text)' }} />
+            <button className="admin-btn admin-btn-red" style={{ fontSize: 12, padding: '6px 14px' }} onClick={applyCustom}>
+              Uygula
+            </button>
           </div>
         </div>
       </div>
@@ -1113,46 +1166,73 @@ function IstatistiklerTab({ adminKey }: { adminKey: string }) {
               { label: 'Bugün', value: todayVisits, icon: '📅' },
             ].map(card => (
               <div key={card.label} className="admin-card" style={{ padding: '20px 24px', margin: 0 }}>
-                <div style={{ fontSize: 24, marginBottom: 6 }}>{card.icon}</div>
+                <div style={{ fontSize: 22, marginBottom: 6 }}>{card.icon}</div>
                 <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--red)', lineHeight: 1 }}>{card.value.toLocaleString('tr-TR')}</div>
                 <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>{card.label}</div>
               </div>
             ))}
           </div>
 
+          {/* Günlük Grafik */}
+          {chartDays.length > 0 && chartDays.length <= 91 && (
+            <div className="admin-card" style={{ marginBottom: 20 }}>
+              <div className="admin-card-title" style={{ marginBottom: 16 }}>
+                Günlük Ziyaretler
+                <span style={{ fontWeight: 400, color: 'var(--muted)', fontSize: 12, marginLeft: 8 }}>
+                  {dateFrom} – {dateTo}
+                </span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'flex-end', gap: chartDays.length > 30 ? 2 : 4, height: 90, paddingBottom: showAllLabels ? 20 : 0, position: 'relative' }}>
+                {chartDays.map(({ date, label, count }) => (
+                  <div key={date} title={`${date}: ${count} ziyaret`}
+                    style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', height: '100%', position: 'relative' }}>
+                    <div style={{
+                      width: '100%',
+                      height: count > 0 ? `${Math.max((count / maxDay) * 100, 7)}%` : '2px',
+                      background: count > 0 ? 'var(--red)' : 'var(--border-g)',
+                      borderRadius: '3px 3px 0 0',
+                    }} />
+                    {showAllLabels && (
+                      <span style={{ position: 'absolute', bottom: -18, fontSize: 9, color: 'var(--muted)', whiteSpace: 'nowrap' }}>{label}</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+              {!showAllLabels && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: 'var(--muted)', marginTop: 6 }}>
+                  <span>{chartDays[0]?.label}</span>
+                  <span>{chartDays[Math.floor(chartDays.length / 2)]?.label}</span>
+                  <span>{chartDays[chartDays.length - 1]?.label}</span>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Ülkeler + Sayfalar */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
-            {/* Top Ülkeler */}
             <div className="admin-card" style={{ margin: 0 }}>
               <div className="admin-card-title">Ülkelere Göre</div>
-              {topCountries.length === 0 ? (
-                <div className="admin-empty" style={{ fontSize: 13 }}>Henüz veri yok.</div>
-              ) : (
+              {topCountries.length === 0 ? <div className="admin-empty" style={{ fontSize: 13 }}>Henüz veri yok.</div> : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 12 }}>
                   {topCountries.map(([country, { count, code }]) => (
                     <div key={country}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                         <span style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
-                          <span style={{ fontSize: 16 }}>{countryFlag(code)}</span>
-                          {country}
+                          <span style={{ fontSize: 16 }}>{countryFlag(code)}</span>{country}
                         </span>
                         <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--red)' }}>{count}</span>
                       </div>
                       <div style={{ height: 4, background: 'var(--bg3)', borderRadius: 2 }}>
-                        <div style={{ height: '100%', background: 'var(--red)', borderRadius: 2, width: `${(count / maxCount) * 100}%`, transition: 'width 0.4s' }} />
+                        <div style={{ height: '100%', background: 'var(--red)', borderRadius: 2, width: `${(count / maxCountry) * 100}%` }} />
                       </div>
                     </div>
                   ))}
                 </div>
               )}
             </div>
-
-            {/* Top Sayfalar */}
             <div className="admin-card" style={{ margin: 0 }}>
               <div className="admin-card-title">Sayfalara Göre</div>
-              {topPages.length === 0 ? (
-                <div className="admin-empty" style={{ fontSize: 13 }}>Henüz veri yok.</div>
-              ) : (
+              {topPages.length === 0 ? <div className="admin-empty" style={{ fontSize: 13 }}>Henüz veri yok.</div> : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 12 }}>
                   {topPages.map(([page, count]) => (
                     <div key={page}>
@@ -1163,7 +1243,7 @@ function IstatistiklerTab({ adminKey }: { adminKey: string }) {
                         <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--red)' }}>{count}</span>
                       </div>
                       <div style={{ height: 4, background: 'var(--bg3)', borderRadius: 2 }}>
-                        <div style={{ height: '100%', background: 'var(--red)', borderRadius: 2, width: `${(count / maxPageCount) * 100}%`, transition: 'width 0.4s' }} />
+                        <div style={{ height: '100%', background: 'var(--red)', borderRadius: 2, width: `${(count / maxPage) * 100}%` }} />
                       </div>
                     </div>
                   ))}
@@ -1193,9 +1273,12 @@ function IstatistiklerTab({ adminKey }: { adminKey: string }) {
 
           {/* Son Ziyaretçiler */}
           <div className="admin-card">
-            <div className="admin-card-title" style={{ marginBottom: 12 }}>Son Ziyaretçiler</div>
-            {recent.length === 0 ? (
-              <div className="admin-empty">Henüz ziyaretçi yok.</div>
+            <div className="admin-card-title" style={{ marginBottom: 12 }}>
+              Son Ziyaretçiler
+              <span style={{ fontWeight: 400, fontSize: 12, color: 'var(--muted)', marginLeft: 8 }}>{data.length} kayıt</span>
+            </div>
+            {data.length === 0 ? (
+              <div className="admin-empty">Seçilen aralıkta ziyaretçi yok.</div>
             ) : (
               <div style={{ overflowX: 'auto' }}>
                 <table className="admin-table">
@@ -1209,7 +1292,7 @@ function IstatistiklerTab({ adminKey }: { adminKey: string }) {
                     </tr>
                   </thead>
                   <tbody>
-                    {recent.map(v => (
+                    {data.slice(0, 100).map(v => (
                       <tr key={v.id}>
                         <td style={{ fontSize: 11, color: 'var(--muted)', whiteSpace: 'nowrap' }}>{timeAgo(v.created_at)}</td>
                         <td style={{ fontFamily: 'monospace', fontSize: 12 }}>{v.ip || '—'}</td>
