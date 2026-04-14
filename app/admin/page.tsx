@@ -5,10 +5,11 @@ import { PAGE_SECTIONS } from '@/lib/admin-pages-config'
 
 const ImageUploadCrop = dynamic(() => import('@/components/admin/ImageUploadCrop'), { ssr: false })
 
-const TABS = ['Sayfalar', 'Menü', 'Blog & Tarifler', 'Galeri'] as const
+const TABS = ['Sayfalar', 'Menü', 'Blog & Tarifler', 'Galeri', 'Talepler', 'İstatistikler'] as const
 type Tab = typeof TABS[number]
 
 type Post = { id: string; title: string; slug: string; published: boolean; created_at: string; excerpt: string }
+type VisitRow = { id: string; ip: string; country: string | null; country_code: string | null; city: string | null; region: string | null; page: string | null; referrer: string | null; user_agent: string | null; created_at: string }
 type Category = { id: string; name: string; display_order: number }
 type Item = { id: string; category_id: string; name: string; description: string; price: string; image_url: string; is_available: boolean; is_featured: boolean; display_order: number }
 type GalleryImg = { id: string; url: string; caption: string; display_order: number }
@@ -422,13 +423,27 @@ function BlogTab({ adminKey }: { adminKey: string }) {
   const [msg, setMsg] = useState('')
   const [saving, setSaving] = useState(false)
   const [tab, setTab] = useState<'list' | 'new'>('list')
+  const [featuredSlug, setFeaturedSlug] = useState('')
 
   const load = useCallback(async () => {
     const data = await get('/api/posts')
     setPosts(Array.isArray(data) ? data : [])
+    const settings = await fetch('/api/settings').then(r => r.json())
+    setFeaturedSlug(settings.featured_blog_slug || '')
   }, [get])
 
   useEffect(() => { load() }, [load])
+
+  const toggleFeatured = async (p: Post) => {
+    const newSlug = featuredSlug === p.slug ? '' : p.slug
+    await fetch('/api/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey },
+      body: JSON.stringify({ featured_blog_slug: newSlug }),
+    })
+    setFeaturedSlug(newSlug)
+    flash(newSlug ? `"${p.title}" öne çıkarıldı ✓` : 'Öne çıkan kaldırıldı')
+  }
 
   const flash = (m: string) => { setMsg(m); setTimeout(() => setMsg(''), 3000) }
 
@@ -500,6 +515,7 @@ function BlogTab({ adminKey }: { adminKey: string }) {
                     <td>
                       <div style={{ fontWeight: 600 }}>{p.title}</div>
                       {p.excerpt && <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>{p.excerpt.slice(0, 70)}...</div>}
+                      {featuredSlug === p.slug && <span className="badge badge-red" style={{ marginTop: 4, display: 'inline-block' }}>⭐ Öne Çıkan</span>}
                     </td>
                     <td style={{ whiteSpace: 'nowrap' }}>
                       {new Date(p.created_at).toLocaleDateString('tr-TR')}
@@ -513,6 +529,12 @@ function BlogTab({ adminKey }: { adminKey: string }) {
                     </td>
                     <td>
                       <div className="admin-actions">
+                        <button
+                          className="admin-btn admin-btn-outline"
+                          onClick={() => toggleFeatured(p)}
+                          title={featuredSlug === p.slug ? 'Öne çıkanı kaldır' : 'Öne çıkar'}
+                          style={{ fontSize: 16 }}
+                        >{featuredSlug === p.slug ? '⭐' : '☆'}</button>
                         <button className="admin-btn admin-btn-outline" onClick={() => { setEditPost({ ...p, content: '', cover_image_url: '' }); setTab('new') }}>Düzenle</button>
                         <button className="admin-btn admin-btn-danger" onClick={() => deletePost(p.id)}>Sil</button>
                       </div>
@@ -798,6 +820,422 @@ function GalleryTab({ adminKey }: { adminKey: string }) {
   )
 }
 
+function TaleplerTab({ adminKey }: { adminKey: string }) {
+  const [requests, setRequests] = useState<Record<string, unknown>[]>([])
+  const [loading, setLoading] = useState(true)
+  const [msg, setMsg] = useState('')
+  const [filter, setFilter] = useState<string>('tumu')
+
+  const flash = (m: string) => { setMsg(m); setTimeout(() => setMsg(''), 3000) }
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    try {
+      const res = await fetch('/api/requests', { headers: { 'x-admin-key': adminKey } })
+      const data = await res.json()
+      setRequests(Array.isArray(data) ? data : [])
+    } catch { flash('Yüklenemedi') }
+    setLoading(false)
+  }, [adminKey])
+
+  useEffect(() => { load() }, [load])
+
+  const updateStatus = async (id: string, status: string) => {
+    await fetch('/api/requests', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey },
+      body: JSON.stringify({ id, status }),
+    })
+    flash('Durum güncellendi ✓')
+    load()
+  }
+
+  const TYPE_LABEL: Record<string, string> = { rezervasyon: '🍽️ Rezervasyon', catering: '🎉 Catering', oneri: '💬 Öneri/Şikayet' }
+
+  const buildWaNotif = (r: Record<string, unknown>, status: string) => {
+    const name = String(r.name || '')
+    const phone = String(r.phone || '').replace(/[^0-9]/g, '')
+    if (!phone) return null
+    const lines: string[] = []
+    if (status === 'onaylandi') {
+      lines.push(`Sayın ${name},`)
+      if (r.type === 'rezervasyon') {
+        lines.push(`Rezervasyonunuz onaylanmıştır. ✅`)
+        if (r.date) lines.push(`📅 Tarih: ${String(r.date)}${r.time ? ` saat ${String(r.time)}` : ''}`)
+        if (r.guests) lines.push(`👥 Kişi: ${String(r.guests)}`)
+      } else if (r.type === 'catering') {
+        lines.push(`Catering talebiniz onaylanmıştır. ✅`)
+        if (r.date) lines.push(`📅 Tarih: ${String(r.date)}`)
+        if (r.guests) lines.push(`👥 Kişi: ${String(r.guests)}`)
+      } else {
+        lines.push(`Geri bildiriminiz için teşekkür ederiz. ✅`)
+      }
+      lines.push(`Sizi aramızda görmekten mutluluk duyarız.`)
+      lines.push(`— Tandırcı Usta®`)
+    } else if (status === 'iptal') {
+      lines.push(`Sayın ${name},`)
+      lines.push(`Maalesef talebinizi bu kez karşılayamıyoruz. 😔`)
+      lines.push(`Detaylar için bizi arayabilirsiniz.`)
+      lines.push(`— Tandırcı Usta®`)
+    }
+    if (!lines.length) return null
+    return `https://wa.me/${phone}?text=${encodeURIComponent(lines.join('\n'))}`
+  }
+
+  const filtered = filter === 'tumu' ? requests : requests.filter(r => r.type === filter || r.status === filter)
+  const yeniCount = requests.filter(r => r.status === 'yeni').length
+
+  return (
+    <div>
+      <div className="admin-header">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+          <div>
+            <div className="admin-page-title">
+              Talepler
+              {yeniCount > 0 && <span className="badge badge-red" style={{ marginLeft: 10, fontSize: 13 }}>{yeniCount} Yeni</span>}
+            </div>
+            <div className="admin-page-sub">Rezervasyon, catering ve öneri/şikayet talepleri.</div>
+          </div>
+          <button className="admin-btn admin-btn-outline" onClick={load}>↻ Yenile</button>
+        </div>
+      </div>
+
+      {/* Filtre */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
+        {['tumu','rezervasyon','catering','oneri','yeni','goruldu','onaylandi'].map(f => (
+          <button key={f} onClick={() => setFilter(f)}
+            className={`admin-btn ${filter === f ? 'admin-btn-red' : 'admin-btn-outline'}`}
+            style={{ textTransform: 'capitalize' }}>
+            {f === 'tumu' ? 'Tümü' : f === 'goruldu' ? 'Görüldü' : f === 'onaylandi' ? 'Onaylandı' : f === 'yeni' ? 'Yeni' : TYPE_LABEL[f]?.replace(/^[^ ]+ /, '') || f}
+          </button>
+        ))}
+      </div>
+
+      <div className="admin-card">
+        {loading ? (
+          <div className="admin-empty">Yükleniyor...</div>
+        ) : filtered.length === 0 ? (
+          <div className="admin-empty">Henüz talep yok.</div>
+        ) : (
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Tür</th>
+                <th>Ad</th>
+                <th>Telefon</th>
+                <th>Detay</th>
+                <th>Not</th>
+                <th>Tarih</th>
+                <th>Durum</th>
+                <th>Bildir</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((r) => {
+                const id = r.id as string
+                const status = (r.status as string) || 'yeni'
+                const createdAt = r.created_at as string
+                return (
+                  <tr key={id}>
+                    <td><span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text)' }}>{TYPE_LABEL[r.type as string] || String(r.type)}</span></td>
+                    <td style={{ fontWeight: 600 }}>{String(r.name || '—')}</td>
+                    <td>{r.phone ? <a href={`tel:${r.phone}`} style={{ color: 'var(--red)', textDecoration: 'none' }}>{String(r.phone)}</a> : '—'}</td>
+                    <td style={{ fontSize: 12, color: 'var(--muted)' }}>
+                      {r.date ? <div>📅 {String(r.date)}{r.time ? ` ${String(r.time)}` : ''}</div> : null}
+                      {r.guests ? <div>👥 {String(r.guests)} kişi</div> : null}
+                      {r.event_type ? <div>🎊 {String(r.event_type)}</div> : null}
+                    </td>
+                    <td style={{ maxWidth: 200, fontSize: 12, color: 'var(--muted)' }}>
+                      {r.note ? String(r.note).slice(0, 80) + (String(r.note).length > 80 ? '…' : '') : '—'}
+                    </td>
+                    <td style={{ whiteSpace: 'nowrap', fontSize: 12, color: 'var(--muted)' }}>
+                      {new Date(createdAt).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' })}<br />
+                      {new Date(createdAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
+                    </td>
+                    <td>
+                      <select
+                        value={status}
+                        onChange={e => updateStatus(id, e.target.value)}
+                        style={{
+                          border: '1.5px solid var(--border-g)',
+                          borderRadius: 6, padding: '5px 8px',
+                          fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                          background: status === 'yeni' ? 'rgba(200,37,26,0.08)' : status === 'onaylandi' ? 'rgba(34,197,94,0.1)' : 'var(--bg2)',
+                          color: status === 'yeni' ? 'var(--red)' : status === 'onaylandi' ? '#16a34a' : 'var(--muted)',
+                          outline: 'none',
+                        }}
+                      >
+                        <option value="yeni">🔴 Yeni</option>
+                        <option value="goruldu">👁 Görüldü</option>
+                        <option value="onaylandi">✅ Onaylandı</option>
+                        <option value="iptal">❌ İptal</option>
+                      </select>
+                    </td>
+                    <td>
+                      {(() => {
+                        const waUrl = buildWaNotif(r, status)
+                        return waUrl ? (
+                          <a
+                            href={waUrl}
+                            target="_blank"
+                            rel="noopener"
+                            title="WhatsApp ile bildir"
+                            style={{
+                              display: 'inline-flex', alignItems: 'center', gap: 5,
+                              background: status === 'iptal' ? 'rgba(220,38,38,0.08)' : 'rgba(37,211,102,0.1)',
+                              color: status === 'iptal' ? '#dc2626' : '#16a34a',
+                              border: `1px solid ${status === 'iptal' ? 'rgba(220,38,38,0.2)' : 'rgba(37,211,102,0.25)'}`,
+                              borderRadius: 6, padding: '5px 10px', fontSize: 11, fontWeight: 700,
+                              textDecoration: 'none', whiteSpace: 'nowrap',
+                            }}
+                          >
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                            {status === 'iptal' ? 'Reddet' : 'Onayla'}
+                          </a>
+                        ) : <span style={{ color: 'var(--muted)', fontSize: 11 }}>—</span>
+                      })()}
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        )}
+        {msg && <div className="admin-msg success" style={{ margin: '12px 0 0' }}>{msg}</div>}
+      </div>
+    </div>
+  )
+}
+
+function countryFlag(code: string | null): string {
+  if (!code || code === 'XX') return '🌐'
+  return Array.from(code.toUpperCase())
+    .map(c => String.fromCodePoint(0x1F1E6 + c.charCodeAt(0) - 65))
+    .join('')
+}
+
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime()
+  const mins = Math.floor(diff / 60000)
+  if (mins < 1) return 'Az önce'
+  if (mins < 60) return `${mins}dk önce`
+  const hours = Math.floor(mins / 60)
+  if (hours < 24) return `${hours}sa önce`
+  const days = Math.floor(hours / 24)
+  return `${days}g önce`
+}
+
+function IstatistiklerTab({ adminKey }: { adminKey: string }) {
+  const [raw, setRaw] = useState<VisitRow[]>([])
+  const [loading, setLoading] = useState(true)
+  const [period, setPeriod] = useState<1 | 7 | 30>(7)
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    try {
+      const res = await fetch('/api/analytics?days=30', { headers: { 'x-admin-key': adminKey } })
+      const json = await res.json()
+      setRaw(Array.isArray(json) ? json : [])
+    } catch { /* silent */ }
+    setLoading(false)
+  }, [adminKey])
+
+  useEffect(() => { load() }, [load])
+
+  const cutoff = new Date(Date.now() - period * 24 * 60 * 60 * 1000)
+  const data = raw.filter(d => new Date(d.created_at) >= cutoff)
+
+  const totalVisits = data.length
+  const uniqueIPs = new Set(data.map(d => d.ip)).size
+  const today = new Date().toDateString()
+  const todayVisits = data.filter(d => new Date(d.created_at).toDateString() === today).length
+
+  const topCountries = Object.entries(
+    data.reduce((acc, d) => {
+      const k = d.country || 'Bilinmiyor'
+      acc[k] = { count: (acc[k]?.count || 0) + 1, code: d.country_code || null }
+      return acc
+    }, {} as Record<string, { count: number; code: string | null }>)
+  ).sort((a, b) => b[1].count - a[1].count).slice(0, 10)
+
+  const topCities = Object.entries(
+    data.reduce((acc, d) => {
+      if (!d.city) return acc
+      const k = `${d.city}|${d.country || ''}|${d.country_code || ''}`
+      acc[k] = (acc[k] || 0) + 1
+      return acc
+    }, {} as Record<string, number>)
+  ).sort((a, b) => b[1] - a[1]).slice(0, 10)
+
+  const topPages = Object.entries(
+    data.reduce((acc, d) => {
+      const k = d.page || '/'
+      acc[k] = (acc[k] || 0) + 1
+      return acc
+    }, {} as Record<string, number>)
+  ).sort((a, b) => b[1] - a[1]).slice(0, 10)
+
+  const recent = data.slice(0, 50)
+  const maxCount = topCountries[0]?.[1].count || 1
+  const maxPageCount = topPages[0]?.[1] || 1
+
+  const PERIOD_LABELS: Record<number, string> = { 1: 'Bugün', 7: '7 Gün', 30: '30 Gün' }
+
+  return (
+    <div>
+      <div className="admin-header">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+          <div>
+            <div className="admin-page-title">İstatistikler</div>
+            <div className="admin-page-sub">Ziyaretçi sayısı, konumlar ve sayfa görüntülemeleri.</div>
+          </div>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            {([1, 7, 30] as const).map(p => (
+              <button key={p} onClick={() => setPeriod(p)}
+                className={`admin-btn ${period === p ? 'admin-btn-red' : 'admin-btn-outline'}`}>
+                {PERIOD_LABELS[p]}
+              </button>
+            ))}
+            <button className="admin-btn admin-btn-outline" onClick={load}>↻</button>
+          </div>
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="admin-card"><div className="admin-empty">Yükleniyor...</div></div>
+      ) : (
+        <>
+          {/* Özet Kartlar */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 20 }}>
+            {[
+              { label: 'Toplam Ziyaret', value: totalVisits, icon: '👁️' },
+              { label: 'Tekil Ziyaretçi', value: uniqueIPs, icon: '👤' },
+              { label: 'Bugün', value: todayVisits, icon: '📅' },
+            ].map(card => (
+              <div key={card.label} className="admin-card" style={{ padding: '20px 24px', margin: 0 }}>
+                <div style={{ fontSize: 24, marginBottom: 6 }}>{card.icon}</div>
+                <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--red)', lineHeight: 1 }}>{card.value.toLocaleString('tr-TR')}</div>
+                <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>{card.label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Ülkeler + Sayfalar */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
+            {/* Top Ülkeler */}
+            <div className="admin-card" style={{ margin: 0 }}>
+              <div className="admin-card-title">Ülkelere Göre</div>
+              {topCountries.length === 0 ? (
+                <div className="admin-empty" style={{ fontSize: 13 }}>Henüz veri yok.</div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 12 }}>
+                  {topCountries.map(([country, { count, code }]) => (
+                    <div key={country}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                        <span style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <span style={{ fontSize: 16 }}>{countryFlag(code)}</span>
+                          {country}
+                        </span>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--red)' }}>{count}</span>
+                      </div>
+                      <div style={{ height: 4, background: 'var(--bg3)', borderRadius: 2 }}>
+                        <div style={{ height: '100%', background: 'var(--red)', borderRadius: 2, width: `${(count / maxCount) * 100}%`, transition: 'width 0.4s' }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Top Sayfalar */}
+            <div className="admin-card" style={{ margin: 0 }}>
+              <div className="admin-card-title">Sayfalara Göre</div>
+              {topPages.length === 0 ? (
+                <div className="admin-empty" style={{ fontSize: 13 }}>Henüz veri yok.</div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 12 }}>
+                  {topPages.map(([page, count]) => (
+                    <div key={page}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                        <span style={{ fontSize: 12, color: 'var(--muted)', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '75%' }}>
+                          {page || '/'}
+                        </span>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--red)' }}>{count}</span>
+                      </div>
+                      <div style={{ height: 4, background: 'var(--bg3)', borderRadius: 2 }}>
+                        <div style={{ height: '100%', background: 'var(--red)', borderRadius: 2, width: `${(count / maxPageCount) * 100}%`, transition: 'width 0.4s' }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Top Şehirler */}
+          {topCities.length > 0 && (
+            <div className="admin-card" style={{ marginBottom: 20 }}>
+              <div className="admin-card-title">En Çok Ziyaret Eden Şehirler</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 12 }}>
+                {topCities.map(([key, count]) => {
+                  const [city, , cc] = key.split('|')
+                  return (
+                    <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--bg2)', border: '1px solid var(--border-g)', borderRadius: 20, padding: '5px 12px', fontSize: 12 }}>
+                      <span>{countryFlag(cc || null)}</span>
+                      <span>{city}</span>
+                      <span style={{ fontWeight: 700, color: 'var(--red)' }}>{count}</span>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Son Ziyaretçiler */}
+          <div className="admin-card">
+            <div className="admin-card-title" style={{ marginBottom: 12 }}>Son Ziyaretçiler</div>
+            {recent.length === 0 ? (
+              <div className="admin-empty">Henüz ziyaretçi yok.</div>
+            ) : (
+              <div style={{ overflowX: 'auto' }}>
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Zaman</th>
+                      <th>IP Adresi</th>
+                      <th>Konum</th>
+                      <th>Sayfa</th>
+                      <th>Referans</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recent.map(v => (
+                      <tr key={v.id}>
+                        <td style={{ fontSize: 11, color: 'var(--muted)', whiteSpace: 'nowrap' }}>{timeAgo(v.created_at)}</td>
+                        <td style={{ fontFamily: 'monospace', fontSize: 12 }}>{v.ip || '—'}</td>
+                        <td style={{ fontSize: 12 }}>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                            <span>{countryFlag(v.country_code)}</span>
+                            <span>{[v.city, v.country].filter(Boolean).join(', ') || '—'}</span>
+                          </span>
+                        </td>
+                        <td style={{ fontFamily: 'monospace', fontSize: 12, color: 'var(--red)' }}>{v.page || '/'}</td>
+                        <td style={{ fontSize: 11, color: 'var(--muted)', maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {v.referrer || '—'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
+
 // ── MAIN ADMIN PAGE ────────────────────────────────────────────
 
 export default function AdminPage() {
@@ -806,17 +1244,42 @@ export default function AdminPage() {
   const [err, setErr] = useState('')
   const [adminKey, setAdminKey] = useState('')
   const [activeTab, setActiveTab] = useState<Tab>('Sayfalar')
+  const [newRequestCount, setNewRequestCount] = useState(0)
+
+  const fetchNewCount = useCallback(async (key: string) => {
+    try {
+      const res = await fetch('/api/requests', { headers: { 'x-admin-key': key } })
+      if (res.ok) {
+        const data = await res.json()
+        if (Array.isArray(data)) {
+          setNewRequestCount(data.filter((r: Record<string, unknown>) => r.status === 'yeni').length)
+        }
+      }
+    } catch { /* silent */ }
+  }, [])
 
   useEffect(() => {
     const saved = sessionStorage.getItem('admin_key')
-    if (saved) { setAdminKey(saved); setAuthed(true) }
-  }, [])
+    if (saved) { setAdminKey(saved); setAuthed(true); fetchNewCount(saved) }
+  }, [fetchNewCount])
+
+  // Talepler sekmesinden çıkınca sayacı güncelle
+  useEffect(() => {
+    if (authed && adminKey && activeTab !== 'Talepler') {
+      fetchNewCount(adminKey)
+    }
+  }, [activeTab, authed, adminKey, fetchNewCount])
 
   const login = async () => {
-    const res = await fetch('/api/settings', { headers: { 'x-admin-key': pw } })
+    // POST auth gerektirir — GET her zaman 200 döndüğü için POST kullanıyoruz
+    const res = await fetch('/api/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-key': pw },
+      body: JSON.stringify({}),
+    })
     if (res.ok) {
       sessionStorage.setItem('admin_key', pw)
-      setAdminKey(pw); setAuthed(true)
+      setAdminKey(pw); setAuthed(true); fetchNewCount(pw)
     } else {
       setErr('Yanlış şifre'); setTimeout(() => setErr(''), 2000)
     }
@@ -832,26 +1295,34 @@ export default function AdminPage() {
     'Menü': <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>,
     'Blog & Tarifler': <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>,
     'Galeri': <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>,
+    'Talepler': <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>,
+    'İstatistikler': <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>,
   }
 
   if (!authed) {
     return (
       <div className="admin-login">
         <div className="admin-login-card">
-          <div className="admin-login-logo">Tandırcı Usta</div>
-          <div className="admin-login-sub">Admin Paneli</div>
-          <input
-            type="password"
-            placeholder="••••••••"
-            value={pw}
-            onChange={e => setPw(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && login()}
-            style={{ width: '100%', background: 'var(--bg2)', border: '1.5px solid var(--border-g)', padding: '12px 16px', borderRadius: 8, fontSize: 16, marginBottom: 12, outline: 'none', textAlign: 'center', letterSpacing: 4, color: 'var(--black)', fontFamily: 'var(--sans)' }}
-          />
-          <button className="btn btn-red" style={{ width: '100%', justifyContent: 'center' }} onClick={login}>
+          <div style={{ width: 56, height: 56, borderRadius: 14, background: 'var(--red)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', fontSize: 26 }}>🔥</div>
+          <div className="admin-login-logo">Tandırcı Usta®</div>
+          <div className="admin-login-sub">Yönetim Paneli — Yetkili Giriş</div>
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6, textAlign: 'left' }}>Şifre</div>
+            <input
+              type="password"
+              placeholder="••••••••"
+              value={pw}
+              onChange={e => setPw(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && login()}
+              style={{ width: '100%', background: 'var(--bg2)', border: '1.5px solid var(--border-g)', padding: '12px 16px', borderRadius: 8, fontSize: 16, outline: 'none', letterSpacing: 4, color: 'var(--black)', fontFamily: 'var(--sans)', transition: 'border-color 0.2s' }}
+              onFocus={e => e.target.style.borderColor = 'var(--red)'}
+              onBlur={e => e.target.style.borderColor = 'var(--border-g)'}
+            />
+          </div>
+          <button className="btn btn-red" style={{ width: '100%', justifyContent: 'center', padding: '13px', fontSize: 14 }} onClick={login}>
             Giriş Yap
           </button>
-          {err && <div className="admin-msg error">{err}</div>}
+          {err && <div className="admin-msg error" style={{ marginTop: 12 }}>{err}</div>}
         </div>
       </div>
     )
@@ -861,16 +1332,28 @@ export default function AdminPage() {
     <div className="admin-layout">
       {/* Sidebar */}
       <div className="admin-sidebar">
-        <div className="admin-sidebar-logo">Tandırcı Usta<br /><span style={{ fontSize: 11, fontFamily: 'var(--sans)', color: 'rgba(255,255,255,0.4)', fontWeight: 400 }}>Admin Panel</span></div>
+        <div className="admin-sidebar-logo">Tandırcı Usta®<br /><span style={{ fontSize: 11, fontFamily: 'var(--sans)', color: 'rgba(255,255,255,0.4)', fontWeight: 400 }}>Admin Panel</span></div>
         <nav className="admin-nav">
           {TABS.map(tab => (
             <button
               key={tab}
               className={`admin-nav-item${activeTab === tab ? ' active' : ''}`}
               onClick={() => setActiveTab(tab)}
+              style={{ justifyContent: 'space-between' }}
             >
-              {NAV_ICONS[tab]}
-              {tab}
+              <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                {NAV_ICONS[tab]}
+                {tab}
+              </span>
+              {tab === 'Talepler' && newRequestCount > 0 && (
+                <span style={{
+                  background: 'var(--red)', color: '#fff',
+                  fontSize: 10, fontWeight: 700, lineHeight: 1,
+                  padding: '3px 7px', borderRadius: 20, minWidth: 18, textAlign: 'center',
+                }}>
+                  {newRequestCount}
+                </span>
+              )}
             </button>
           ))}
           <div style={{ marginTop: 'auto', paddingTop: 24 }}>
@@ -892,6 +1375,8 @@ export default function AdminPage() {
         {activeTab === 'Menü' && <MenuTab adminKey={adminKey} />}
         {activeTab === 'Blog & Tarifler' && <BlogTab adminKey={adminKey} />}
         {activeTab === 'Galeri' && <GalleryTab adminKey={adminKey} />}
+        {activeTab === 'Talepler' && <TaleplerTab adminKey={adminKey} />}
+        {activeTab === 'İstatistikler' && <IstatistiklerTab adminKey={adminKey} />}
       </main>
     </div>
   )
