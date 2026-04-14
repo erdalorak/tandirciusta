@@ -60,6 +60,11 @@ export async function POST(req: NextRequest) {
   }
 
   const ip = getClientIP(req)
+
+  // Yönetici IP'lerini say
+  const excludedIPs = (process.env.ANALYTICS_EXCLUDED_IPS || '').split(',').map(s => s.trim()).filter(Boolean)
+  if (excludedIPs.includes(ip)) return NextResponse.json({ ok: true })
+
   const body = await req.json().catch(() => ({}))
   const { page = '/', referrer = '' } = body as { page?: string; referrer?: string }
 
