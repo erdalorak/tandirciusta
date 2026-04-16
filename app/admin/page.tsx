@@ -1129,6 +1129,43 @@ function IstatistiklerTab({ adminKey }: { adminKey: string }) {
         </div>
       </div>
 
+      {/* Google Analytics Banner */}
+      <a href="https://analytics.google.com" target="_blank" rel="noopener noreferrer" style={{ display: 'block', textDecoration: 'none', marginBottom: 20 }}>
+        <div style={{
+          background: 'linear-gradient(135deg, #1557b0 0%, #1a73e8 100%)',
+          border: '1px solid rgba(26,115,232,0.4)',
+          borderRadius: 12,
+          padding: '14px 20px',
+          cursor: 'pointer',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          gap: 12,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ background: 'rgba(255,255,255,0.15)', borderRadius: 10, width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <rect x="2" y="13" width="4" height="9" rx="1" fill="white" opacity="0.6"/>
+                <rect x="9" y="7" width="4" height="15" rx="1" fill="white" opacity="0.8"/>
+                <rect x="16" y="2" width="4" height="20" rx="1" fill="white"/>
+              </svg>
+            </div>
+            <div>
+              <div style={{ fontWeight: 700, fontSize: 14, color: '#fff', lineHeight: 1.2 }}>Google Analytics 4</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginTop: 3 }}>tandirciusta.com · Tüm ziyaretler izleniyor</div>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'rgba(255,255,255,0.85)', fontSize: 12, fontWeight: 600, flexShrink: 0 }}>
+            Raporu Aç
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" strokeWidth="2.5">
+              <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
+              <polyline points="15 3 21 3 21 9"/>
+              <line x1="10" y1="14" x2="21" y2="3"/>
+            </svg>
+          </div>
+        </div>
+      </a>
+
       {/* Tarih Filtresi */}
       <div className="admin-card" style={{ marginBottom: 20, padding: '16px 20px' }}>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
@@ -1160,37 +1197,71 @@ function IstatistiklerTab({ adminKey }: { adminKey: string }) {
         <>
           {/* Özet Kartlar */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 20 }}>
-            {[
-              { label: 'Toplam Ziyaret', value: totalVisits, icon: '👁️' },
-              { label: 'Tekil Ziyaretçi', value: uniqueIPs, icon: '👤' },
-              { label: 'Bugün', value: todayVisits, icon: '📅' },
-            ].map(card => (
-              <div key={card.label} className="admin-card" style={{ padding: '20px 24px', margin: 0 }}>
-                <div style={{ fontSize: 22, marginBottom: 6 }}>{card.icon}</div>
-                <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--red)', lineHeight: 1 }}>{card.value.toLocaleString('tr-TR')}</div>
-                <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>{card.label}</div>
+            <div className="admin-card" style={{ padding: '20px 24px', margin: 0 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div>
+                  <div style={{ fontSize: 30, fontWeight: 800, color: 'var(--red)', lineHeight: 1, letterSpacing: -1 }}>{totalVisits.toLocaleString('tr-TR')}</div>
+                  <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 5, fontWeight: 500 }}>Toplam Ziyaret</div>
+                </div>
+                <div style={{ background: 'rgba(200,37,26,0.08)', borderRadius: 8, padding: '8px', flexShrink: 0 }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--red)" strokeWidth="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                  </svg>
+                </div>
               </div>
-            ))}
+            </div>
+            <div className="admin-card" style={{ padding: '20px 24px', margin: 0 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div>
+                  <div style={{ fontSize: 30, fontWeight: 800, color: 'var(--red)', lineHeight: 1, letterSpacing: -1 }}>{uniqueIPs.toLocaleString('tr-TR')}</div>
+                  <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 5, fontWeight: 500 }}>Tekil Ziyaretçi</div>
+                </div>
+                <div style={{ background: 'rgba(200,37,26,0.08)', borderRadius: 8, padding: '8px', flexShrink: 0 }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--red)" strokeWidth="2">
+                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <div className="admin-card" style={{ padding: '20px 24px', margin: 0 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div>
+                  <div style={{ fontSize: 30, fontWeight: 800, color: 'var(--red)', lineHeight: 1, letterSpacing: -1 }}>{todayVisits.toLocaleString('tr-TR')}</div>
+                  <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 5, fontWeight: 500 }}>Bugün</div>
+                </div>
+                <div style={{ background: 'rgba(200,37,26,0.08)', borderRadius: 8, padding: '8px', flexShrink: 0 }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--red)" strokeWidth="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Günlük Grafik */}
           {chartDays.length > 0 && chartDays.length <= 91 && (
             <div className="admin-card" style={{ marginBottom: 20 }}>
-              <div className="admin-card-title" style={{ marginBottom: 16 }}>
-                Günlük Ziyaretler
-                <span style={{ fontWeight: 400, color: 'var(--muted)', fontSize: 12, marginLeft: 8 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                <div className="admin-card-title" style={{ marginBottom: 0 }}>Günlük Ziyaretler</div>
+                <span style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 400 }}>
                   {dateFrom} – {dateTo}
                 </span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'flex-end', gap: chartDays.length > 30 ? 2 : 4, height: 90, paddingBottom: showAllLabels ? 20 : 0, position: 'relative' }}>
+              <div style={{ display: 'flex', alignItems: 'flex-end', gap: chartDays.length > 30 ? 2 : 4, height: 130, paddingBottom: showAllLabels ? 22 : 0, position: 'relative' }}>
                 {chartDays.map(({ date, label, count }) => (
                   <div key={date} title={`${date}: ${count} ziyaret`}
-                    style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', height: '100%', position: 'relative' }}>
+                    style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', height: '100%', position: 'relative', cursor: 'default' }}>
+                    {count > 0 && chartDays.length <= 14 && (
+                      <span style={{ position: 'absolute', top: 0, fontSize: 9, fontWeight: 700, color: 'var(--red)', whiteSpace: 'nowrap' }}>{count}</span>
+                    )}
                     <div style={{
                       width: '100%',
-                      height: count > 0 ? `${Math.max((count / maxDay) * 100, 7)}%` : '2px',
-                      background: count > 0 ? 'var(--red)' : 'var(--border-g)',
+                      height: count > 0 ? `${Math.max((count / maxDay) * 100, 5)}%` : '2px',
+                      background: count > 0
+                        ? `linear-gradient(to top, var(--red), rgba(200,37,26,0.6))`
+                        : 'var(--border-g)',
                       borderRadius: '3px 3px 0 0',
+                      transition: 'height 0.2s',
                     }} />
                     {showAllLabels && (
                       <span style={{ position: 'absolute', bottom: -18, fontSize: 9, color: 'var(--muted)', whiteSpace: 'nowrap' }}>{label}</span>
@@ -1199,7 +1270,7 @@ function IstatistiklerTab({ adminKey }: { adminKey: string }) {
                 ))}
               </div>
               {!showAllLabels && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: 'var(--muted)', marginTop: 6 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: 'var(--muted)', marginTop: 8 }}>
                   <span>{chartDays[0]?.label}</span>
                   <span>{chartDays[Math.floor(chartDays.length / 2)]?.label}</span>
                   <span>{chartDays[chartDays.length - 1]?.label}</span>
@@ -1211,19 +1282,26 @@ function IstatistiklerTab({ adminKey }: { adminKey: string }) {
           {/* Ülkeler + Sayfalar */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
             <div className="admin-card" style={{ margin: 0 }}>
-              <div className="admin-card-title">Ülkelere Göre</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
+                  <path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/>
+                </svg>
+                <span className="admin-card-title" style={{ marginBottom: 0 }}>Ülkelere Göre</span>
+              </div>
               {topCountries.length === 0 ? <div className="admin-empty" style={{ fontSize: 13 }}>Henüz veri yok.</div> : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 12 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   {topCountries.map(([country, { count, code }]) => (
                     <div key={country}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                        <span style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
-                          <span style={{ fontSize: 16 }}>{countryFlag(code)}</span>{country}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
+                        <span style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 7 }}>
+                          <span style={{ fontSize: 16 }}>{countryFlag(code)}</span>
+                          <span style={{ color: 'var(--text)' }}>{country}</span>
                         </span>
-                        <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--red)' }}>{count}</span>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--red)', background: 'rgba(200,37,26,0.07)', padding: '1px 8px', borderRadius: 20 }}>{count}</span>
                       </div>
-                      <div style={{ height: 4, background: 'var(--bg3)', borderRadius: 2 }}>
-                        <div style={{ height: '100%', background: 'var(--red)', borderRadius: 2, width: `${(count / maxCountry) * 100}%` }} />
+                      <div style={{ height: 5, background: 'var(--bg3)', borderRadius: 3 }}>
+                        <div style={{ height: '100%', background: 'linear-gradient(to right, var(--red), rgba(200,37,26,0.5))', borderRadius: 3, width: `${(count / maxCountry) * 100}%`, transition: 'width 0.3s' }} />
                       </div>
                     </div>
                   ))}
@@ -1231,19 +1309,24 @@ function IstatistiklerTab({ adminKey }: { adminKey: string }) {
               )}
             </div>
             <div className="admin-card" style={{ margin: 0 }}>
-              <div className="admin-card-title">Sayfalara Göre</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth="2">
+                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>
+                </svg>
+                <span className="admin-card-title" style={{ marginBottom: 0 }}>Sayfalara Göre</span>
+              </div>
               {topPages.length === 0 ? <div className="admin-empty" style={{ fontSize: 13 }}>Henüz veri yok.</div> : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 12 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   {topPages.map(([page, count]) => (
                     <div key={page}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
                         <span style={{ fontSize: 12, color: 'var(--muted)', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '75%' }}>
                           {page || '/'}
                         </span>
-                        <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--red)' }}>{count}</span>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--red)', background: 'rgba(200,37,26,0.07)', padding: '1px 8px', borderRadius: 20, flexShrink: 0 }}>{count}</span>
                       </div>
-                      <div style={{ height: 4, background: 'var(--bg3)', borderRadius: 2 }}>
-                        <div style={{ height: '100%', background: 'var(--red)', borderRadius: 2, width: `${(count / maxPage) * 100}%` }} />
+                      <div style={{ height: 5, background: 'var(--bg3)', borderRadius: 3 }}>
+                        <div style={{ height: '100%', background: 'linear-gradient(to right, var(--red), rgba(200,37,26,0.5))', borderRadius: 3, width: `${(count / maxPage) * 100}%`, transition: 'width 0.3s' }} />
                       </div>
                     </div>
                   ))}
@@ -1255,14 +1338,19 @@ function IstatistiklerTab({ adminKey }: { adminKey: string }) {
           {/* Top Şehirler */}
           {topCities.length > 0 && (
             <div className="admin-card" style={{ marginBottom: 20 }}>
-              <div className="admin-card-title">En Çok Ziyaret Eden Şehirler</div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth="2">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+                </svg>
+                <span className="admin-card-title" style={{ marginBottom: 0 }}>En Çok Ziyaret Eden Şehirler</span>
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                 {topCities.map(([key, count]) => {
                   const [city, , cc] = key.split('|')
                   return (
                     <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--bg2)', border: '1px solid var(--border-g)', borderRadius: 20, padding: '5px 12px', fontSize: 12 }}>
                       <span>{countryFlag(cc || null)}</span>
-                      <span>{city}</span>
+                      <span style={{ color: 'var(--text)' }}>{city}</span>
                       <span style={{ fontWeight: 700, color: 'var(--red)' }}>{count}</span>
                     </div>
                   )
@@ -1273,9 +1361,12 @@ function IstatistiklerTab({ adminKey }: { adminKey: string }) {
 
           {/* Son Ziyaretçiler */}
           <div className="admin-card">
-            <div className="admin-card-title" style={{ marginBottom: 12 }}>
-              Son Ziyaretçiler
-              <span style={{ fontWeight: 400, fontSize: 12, color: 'var(--muted)', marginLeft: 8 }}>{data.length} kayıt</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth="2">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+              </svg>
+              <span className="admin-card-title" style={{ marginBottom: 0 }}>Son Ziyaretçiler</span>
+              <span style={{ fontWeight: 400, fontSize: 12, color: 'var(--muted)', marginLeft: 2 }}>{data.length} kayıt</span>
             </div>
             {data.length === 0 ? (
               <div className="admin-empty">Seçilen aralıkta ziyaretçi yok.</div>
