@@ -8,17 +8,17 @@ const GA_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
 export const metadata: Metadata = {
   metadataBase: new URL('https://tandirciusta.com'),
   title: {
-    default: 'Tandırcı Usta | Kırşehir Tandır Restoranı',
+    default: 'Tandırcı Usta | Kırşehir\'de Yemek – Tandır & Anadolu Mutfağı',
     template: '%s | Tandırcı Usta Kırşehir',
   },
-  description: 'Kırşehir\'in en iyi tandır restoranı. Kuzu tandır, tavuk tandır, kelle paça çorbası, geleneksel Anadolu yemekleri. Ahievran Mah. 738. Sk. No:9, Kırşehir. Rezervasyon ve catering hizmeti.',
+  description: '⭐ 4.8 Google Puanı · Kırşehir\'de yemek için doğru adres. Kuzu tandır, kelle paça çorbası, geleneksel Anadolu lezzetleri. 📍 Ahievran Mah. Rezervasyon & catering hizmeti.',
   keywords: [
-    'Kırşehir tandır', 'Kırşehir restoran', 'Kırşehir lokanta',
-    'Kırşehir yemek', 'Kırşehir et', 'Kırşehir çorba',
-    'kuzu tandır Kırşehir', 'tandır restoranı Kırşehir',
+    'Kırşehir yemek yerleri', 'Kırşehir restoran', 'Kırşehir lokanta',
+    'Kırşehir yemek', 'Kırşehir yemek yenecek yerler', 'Kırşehir restaurant',
+    'Kırşehir tandır', 'kuzu tandır Kırşehir', 'tandır restoranı Kırşehir',
     'Kırşehir nerede yemek yenir', 'Kırşehir merkez restoran',
     'Tandırcı Usta', 'Kırşehir Anadolu mutfağı',
-    'kelle paça Kırşehir', 'kuzu kol tandır', 'Kırşehir catering',
+    'kelle paça Kırşehir', 'Kırşehir catering', 'Kırşehir rezervasyon',
   ],
   authors: [{ name: 'Tandırcı Usta', url: 'https://tandirciusta.com' }],
   creator: 'Tandırcı Usta',
@@ -28,14 +28,14 @@ export const metadata: Metadata = {
     locale: 'tr_TR',
     url: 'https://tandirciusta.com',
     siteName: 'Tandırcı Usta',
-    title: 'Tandırcı Usta | Kırşehir\'in En İyi Tandır Restoranı',
-    description: 'Geleneksel tandır fırınında pişirilmiş kuzu, tavuk ve Anadolu lezzetleri. Kırşehir\'de hizmetinizdeyiz.',
-    images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'Tandırcı Usta Kırşehir Tandır Restoranı' }],
+    title: 'Tandırcı Usta | Kırşehir\'de Yemek – ⭐ 4.8 Google Puanı',
+    description: 'Kırşehir\'de geleneksel tandır fırınında pişirilmiş kuzu, kelle paça ve Anadolu lezzetleri. Rezervasyon & catering hizmeti.',
+    images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'Tandırcı Usta – Kırşehir\'in Tandır Restoranı' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Tandırcı Usta | Kırşehir Tandır',
-    description: 'Kırşehir\'de geleneksel tandır lezzetleri. Kuzu tandır, çorba ve Anadolu mutfağı.',
+    title: 'Tandırcı Usta | Kırşehir\'de Yemek',
+    description: 'Kırşehir\'de geleneksel tandır lezzetleri. Kuzu tandır, kelle paça ve Anadolu mutfağı. ⭐ 4.8 Google.',
     images: ['/og-image.jpg'],
   },
   robots: {
@@ -134,6 +134,54 @@ const restaurantSchema = {
   },
 }
 
+/* ── FAQ Schema — hedef: "kırşehir yemek yerleri", "kırşehir restoran" ── */
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'Kırşehir\'de en iyi yemek yeri neresi?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Tandırcı Usta, Kırşehir\'de geleneksel Anadolu mutfağını sunan, ⭐ 4.8 Google puanıyla öne çıkan bir restoran. Ahievran Mah. 738. Sk. No:9 adresinde, kuzu tandır başta olmak üzere kelle paça çorbası ve Anadolu lezzetleri servis edilmektedir.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Kırşehir\'de tandır nerede yenir?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Kırşehir\'de en iyi tandır için Tandırcı Usta\'yı tercih edebilirsiniz. Her sabah yakılan tandır fırınında saatlerce pişirilen kuzu tandır, taze ve doğal malzemelerle hazırlanmaktadır.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Kırşehir\'de rezervasyon yapabileceğim restoran var mı?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Evet, Tandırcı Usta\'da masa rezervasyonu yapabilirsiniz. Web sitesindeki form veya WhatsApp üzerinden rezervasyon talebinde bulunabilirsiniz.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Kırşehir\'de catering hizmeti veren restoran var mı?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Evet, Tandırcı Usta düğün, toplantı ve özel organizasyonlar için catering hizmeti sunmaktadır. Detaylı bilgi için web sitesindeki talep formunu veya WhatsApp\'ı kullanabilirsiniz.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Tandırcı Usta\'nın çalışma saatleri nedir?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Tandırcı Usta hafta içi 09:00–21:00, Cumartesi 09:00–22:00, Pazar 10:00–21:00 saatleri arasında hizmet vermektedir.',
+      },
+    },
+  ],
+}
+
 /* ── WebSite + SearchAction Schema ── */
 const websiteSchema = {
   '@context': 'https://schema.org',
@@ -165,6 +213,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
         />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

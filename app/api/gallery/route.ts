@@ -26,6 +26,14 @@ export async function POST(req: NextRequest) {
   return NextResponse.json(data, { status: 201 })
 }
 
+export async function PATCH(req: NextRequest) {
+  if (!auth(req)) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 })
+  const { id, display_order } = await req.json()
+  const { error } = await supabaseAdmin.from('gallery_images').update({ display_order }).eq('id', id)
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ ok: true })
+}
+
 export async function DELETE(req: NextRequest) {
   if (!auth(req)) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 })
   const { id } = await req.json()

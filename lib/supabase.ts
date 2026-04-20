@@ -14,10 +14,16 @@ export type MenuItem = {
   description: string; price: string; image_url: string
   is_available: boolean; is_featured: boolean; display_order: number
 }
+export type RecipeData = {
+  prep_time: string; cook_time: string; servings: string; difficulty: string
+  ingredients: string[]; steps: string[]; tips?: string
+}
 export type BlogPost = {
   id: string; title: string; slug: string
   content: string; excerpt: string
   cover_image_url: string; published: boolean; created_at: string
+  post_type?: string; recipe_data?: RecipeData | null
+  meta_title?: string; meta_description?: string
 }
 export type GalleryImage = {
   id: string; url: string; caption: string; display_order: number

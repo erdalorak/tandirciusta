@@ -43,20 +43,26 @@ export default async function Home() {
       <ScrollReveal />
 
       {/* ── HERO ── */}
-      <section className="hero" aria-label="Ana başlık" style={s.hero_image ? { backgroundImage: `url(${s.hero_image})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}>
+      <section className="hero" aria-label="Ana başlık" style={{ position: 'relative' }}>
+        {s.hero_image && (
+          <div aria-hidden="true" style={{
+            position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none',
+            backgroundImage: `url(${s.hero_image})`, backgroundSize: 'cover', backgroundPosition: 'center',
+            opacity: s.hero_image_opacity !== undefined ? Number(s.hero_image_opacity) / 100 : 1,
+          }} />
+        )}
         {/* Sol — beyaz */}
-        <div className="hero-left">
+        <div className="hero-left" style={{ position: 'relative', zIndex: 1 }}>
           <div className="hero-inner">
             <div>
               <div className="hero-badge reveal">
-                Kırşehir&apos;in Tandır Ustası · 1965&apos;den Beri
+                {s.hero_badge || "Kırşehir'in Tandır Ustası · 1965'den Beri"}
               </div>
               <h1 className="hero-title reveal reveal-d1">
-                <span>Her Ürünü</span><br /><em>Ustalık Eseri</em>
+                <span>{s.hero_title_line1 || 'Her Ürünü'}</span><br /><em>{s.hero_title_line2 || 'Ustalık Eseri'}</em>
               </h1>
               <p className="hero-subtitle reveal reveal-d2">
-                Gelenekten doğan ustalık, modern sunumla yeniden hayat bulur.<br />
-                Bu sadece yemek değil, bir lezzet ritüeli.
+                {s.hero_subtitle || 'Gelenekten doğan ustalık, modern sunumla yeniden hayat bulur. Bu sadece yemek değil, bir lezzet ritüeli.'}
               </p>
               <div className="hero-actions reveal reveal-d3">
                 <a href="#menu" className="btn btn-red">Menüyü Gör</a>
@@ -73,7 +79,7 @@ export default async function Home() {
         </div>
 
         {/* Sağ — kırmızı, harita */}
-        <div className="hero-visual reveal reveal-d2">
+        <div className="hero-visual reveal reveal-d2" style={{ position: 'relative', zIndex: 1 }}>
           <div className="hero-map-card">
             <iframe
               src={s.maps_embed_url || 'https://maps.google.com/maps?q=Ahievran+Mah+738+Sk+No+9+Kirsehir&t=&z=17&ie=UTF8&iwloc=&output=embed'}
@@ -101,9 +107,9 @@ export default async function Home() {
       <section id="menu" className="section">
         <div className="container">
           <div className="section-header reveal">
-            <p className="eyebrow">Lezzetlerimiz</p>
-            <h2 className="section-title">Menümüz</h2>
-            <p className="section-lead">Taze malzemeler, geleneksel tarifler ve tandır fırınının eşsiz aroması.</p>
+            <p className="eyebrow">{s.menu_eyebrow || 'Lezzetlerimiz'}</p>
+            <h2 className="section-title">{s.menu_title || 'Menümüz'}</h2>
+            <p className="section-lead">{s.menu_lead || 'Taze malzemeler, geleneksel tarifler ve tandır fırınının eşsiz aroması.'}</p>
           </div>
           <MenuClient categories={categories} items={items} />
         </div>
@@ -114,38 +120,38 @@ export default async function Home() {
         <div className="container">
           <div className="about-grid">
             <div>
-              <p className="eyebrow reveal">Hikayemiz</p>
-              <h2 className="section-title reveal reveal-d1">Gelenekten Gelen <em>Tat</em></h2>
+              <p className="eyebrow reveal">{s.about_eyebrow || 'Hikayemiz'}</p>
+              <h2 className="section-title reveal reveal-d1">{s.about_title_line1 || 'Gelenekten Gelen'} <em>{s.about_title_line2 || 'Tat'}</em></h2>
               <div className="about-text">
                 <p className="reveal reveal-d2">
                   {s.about_text || 'Tandırcı Usta®, Kırşehir\'in kalbinde geleneksel Anadolu mutfağını yaşatma idealiyle hizmet vermektedir.'}
                 </p>
                 <p className="reveal reveal-d3">
-                  Tandır fırınımız her sabah yakılır, özenle seçilmiş etler saatlerce pişirilir. Kuzu tandırımızın sırrı basit: kaliteli et, doğru ateş ve bolca sabır.
+                  {s.about_paragraph2 || 'Tandır fırınımız her sabah yakılır, özenle seçilmiş etler saatlerce pişirilir. Kuzu tandırımızın sırrı basit: kaliteli et, doğru ateş ve bolca sabır.'}
                 </p>
                 <p className="reveal reveal-d4">
-                  Aile işletmemiz olarak her müşterimizi misafir, her öğünü özel bir an olarak görüyoruz. Kırşehir&apos;e geldinizde soframız sizin için açık.
+                  {s.about_paragraph3 || 'Aile işletmemiz olarak her müşterimizi misafir, her öğünü özel bir an olarak görüyoruz. Kırşehir\'e geldinizde soframız sizin için açık.'}
                 </p>
               </div>
               <div className="hero-stats" style={{ textAlign: 'left', marginTop: 36 }}>
                 <div className="reveal">
-                  <div className="hero-stat-num">10<sup>+</sup></div>
-                  <div className="hero-stat-label">Yıllık Deneyim</div>
+                  <div className="hero-stat-num">{s.about_stat1_num || '10+'}</div>
+                  <div className="hero-stat-label">{s.about_stat1_label || 'Yıllık Deneyim'}</div>
                 </div>
                 <div className="reveal reveal-d1">
-                  <div className="hero-stat-num">%100</div>
-                  <div className="hero-stat-label">Taze Malzeme</div>
+                  <div className="hero-stat-num">{s.about_stat2_num || '%100'}</div>
+                  <div className="hero-stat-label">{s.about_stat2_label || 'Taze Malzeme'}</div>
                 </div>
                 <div className="reveal reveal-d2">
-                  <div className="hero-stat-num">★4.8</div>
-                  <div className="hero-stat-label">Google Puanı</div>
+                  <div className="hero-stat-num">{s.about_stat3_num || '★4.8'}</div>
+                  <div className="hero-stat-label">{s.about_stat3_label || 'Google Puanı'}</div>
                 </div>
               </div>
             </div>
             <div className="about-img-wrap reveal reveal-d2">
               <div className="about-img-bg" style={s.about_image_width ? { width: `${s.about_image_width}%` } : undefined}>
                 {s.about_image ? (
-                  <img src={s.about_image} alt="Tandırcı Usta Restoran" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 16 }} />
+                  <img src={s.about_image} alt="Tandırcı Usta Restoran" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 16, opacity: s.about_image_opacity !== undefined ? Number(s.about_image_opacity) / 100 : 1 }} />
                 ) : (
                   <div className="about-img-placeholder">
                     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
@@ -161,42 +167,18 @@ export default async function Home() {
       <section id="yorumlar" className="section">
         <div className="container">
           <div className="section-header reveal">
-            <p className="eyebrow">Müşterilerimiz Ne Diyor?</p>
-            <h2 className="section-title">Google <em>Yorumları</em></h2>
-            <p className="section-lead">Gerçek deneyimler, gerçek lezzetler.</p>
+            <p className="eyebrow">{s.reviews_eyebrow || 'Müşterilerimiz Ne Diyor?'}</p>
+            <h2 className="section-title">{s.reviews_title || 'Google'} <em>{s.reviews_title_em || 'Yorumları'}</em></h2>
+            <p className="section-lead">{s.reviews_lead || 'Gerçek deneyimler, gerçek lezzetler.'}</p>
           </div>
           <div className="reviews-grid">
             {[
-              {
-                name: 'Musa Akkuş',
-                date: '8 ay önce',
-                text: 'Kelle paça çorbası ve tandır harika. Tandır tütsülenmiş kuzu eti ile yapılıyormuş. Etin yumuşaklığı ve yağ oranı çok güzel. Personel çok ilgili ve kibar. Mekanın dış kısmı çok güzel. Türk sanat müziği eşliğinde yemeğinizi yiyip çayınızı yudumlayabilirsiniz.',
-              },
-              {
-                name: 'Emre Sadıkoğlu',
-                date: '7 ay önce',
-                text: 'Kelle paça çorbası ve kuzu tandırını çok beğendik. Hiç kuzu kokusu yoktu ve eti yumuşaktı. Çalışanlar efendi insanlar. Kırşehir\'e tekrar geldiğimde buraya yine uğrayabilirim. Fiyatları gayet uygun.',
-              },
-              {
-                name: 'Bahar Gülsever',
-                date: 'Bir yıl önce',
-                text: 'Kırşehir\'de adam akıllı yemek yenilecek bir yer bulduk sonunda. Biz ciğer yedik, gayet lezzetliydi, mezeler de bolca vardı. Çalışan herkes çok kibar ve güler yüzlüydü. Hatta yemekten sonra sütlaç ikram ettiler, sağ olsunlar. Doğunun lezzeti ve samimiyetini Kırşehir\'e getirmişler, teşekkür ederiz.',
-              },
-              {
-                name: 'Alper Gümuş',
-                date: '2 yıl önce',
-                text: 'Tandırı bu şehre kazandıran sevgili Erdem abi\'ye selamlar, eline sağlık usta. Sadece tandır değil, kelle paça çorbasını da kesinlikle denemelisiniz.',
-              },
-              {
-                name: 'Bircan Mert',
-                date: '3 ay önce',
-                text: 'Kaliteli ve güler yüzlü hizmet için çok teşekkür ederiz. Anlatılmaz, yaşamak gerekir. Herkese tavsiye ederim.',
-              },
-              {
-                name: 'Gamze Saatçi',
-                date: 'Bir yıl önce',
-                text: 'İncik haşlama benim favorim! Hem sulu yemekleri hem de çorbaları harika, tandırı ise efsane lezzette. Lezzet konusunda gerçekten iddialılar. Kaliteli malzemeler, özenli pişirme ve mükemmel servisile her seferinde memnun ayrılıyorum. Kesinlikle tavsiye ederim!',
-              },
+              { name: s.review1_name || 'Musa Akkuş', date: s.review1_date || '8 ay önce', text: s.review1_text || 'Kelle paça çorbası ve tandır harika. Tandır tütsülenmiş kuzu eti ile yapılıyormuş. Etin yumuşaklığı ve yağ oranı çok güzel. Personel çok ilgili ve kibar.' },
+              { name: s.review2_name || 'Emre Sadıkoğlu', date: s.review2_date || '7 ay önce', text: s.review2_text || "Kelle paça çorbası ve kuzu tandırını çok beğendik. Hiç kuzu kokusu yoktu ve eti yumuşaktı. Çalışanlar efendi insanlar. Fiyatları gayet uygun." },
+              { name: s.review3_name || 'Bahar Gülsever', date: s.review3_date || 'Bir yıl önce', text: s.review3_text || "Kırşehir'de adam akıllı yemek yenilecek bir yer bulduk sonunda. Çalışan herkes çok kibar ve güler yüzlüydü. Doğunun lezzeti ve samimiyetini Kırşehir'e getirmişler." },
+              { name: s.review4_name || 'Alper Gümuş', date: s.review4_date || '2 yıl önce', text: s.review4_text || "Tandırı bu şehre kazandıran sevgili Erdem abi'ye selamlar, eline sağlık usta. Sadece tandır değil, kelle paça çorbasını da kesinlikle denemelisiniz." },
+              { name: s.review5_name || 'Bircan Mert', date: s.review5_date || '3 ay önce', text: s.review5_text || 'Kaliteli ve güler yüzlü hizmet için çok teşekkür ederiz. Anlatılmaz, yaşamak gerekir. Herkese tavsiye ederim.' },
+              { name: s.review6_name || 'Gamze Saatçi', date: s.review6_date || 'Bir yıl önce', text: s.review6_text || 'İncik haşlama benim favorim! Hem sulu yemekleri hem de çorbaları harika, tandırı ise efsane lezzette. Kesinlikle tavsiye ederim!' },
             ].map((r, i) => (
               <div key={i} className={`review-card reveal reveal-d${i % 4}`}>
                 <div className="review-header">
@@ -236,8 +218,8 @@ export default async function Home() {
       {gallery.length > 0 && <section id="galeri" className="section">
         <div className="container">
           <div className="section-header reveal">
-            <p className="eyebrow">Fotoğraflar</p>
-            <h2 className="section-title">Gözlerinizle <em>Tadın</em></h2>
+            <p className="eyebrow">{s.gallery_eyebrow || 'Fotoğraflar'}</p>
+            <h2 className="section-title">{s.gallery_title || 'Gözlerinizle'} <em>{s.gallery_title_em || 'Tadın'}</em></h2>
           </div>
           <div className="gallery-grid reveal reveal-d1">
             {gallerySlots.map((img, i) => (
@@ -264,16 +246,16 @@ export default async function Home() {
       <section id="markalar" className="section section-alt">
         <div className="container">
           <div className="section-header reveal">
-            <p className="eyebrow">Çatımız Altında</p>
-            <h2 className="section-title">Diğer <em>Markalarımız</em></h2>
-            <p className="section-lead">Tandırcı Usta® ailesinin büyüyen vizyonu.</p>
+            <p className="eyebrow">{s.brands_eyebrow || 'Çatımız Altında'}</p>
+            <h2 className="section-title">{s.brands_title || 'Diğer'} <em>{s.brands_title_em || 'Markalarımız'}</em></h2>
+            <p className="section-lead">{s.brands_lead || 'Tandırcı Usta® ailesinin büyüyen vizyonu.'}</p>
           </div>
           <div className="brands-grid" style={{maxWidth:420}}>
             <Link href="/ilikya" className="brand-card reveal reveal-d1" style={{textDecoration:'none'}}>
               <img src="/ilikya/ilikya-logo.png" alt="İlikya" style={{height:72, objectFit:'contain', marginBottom:16, borderRadius:8}} />
-              <div className="brand-name">İlikya</div>
-              <div className="brand-desc">Dana kemiklerinden elde edilen doğal ve katkısız ilik suyu. Yüksek kolajen içeriği, 6 farklı aroma, cam kavanoz ambalaj.</div>
-              <span className="brand-tag">Yakında →</span>
+              <div className="brand-name">{s.brand_ilikya_title || 'İlikya'}</div>
+              <div className="brand-desc">{s.brand_ilikya_desc || 'Dana kemiklerinden elde edilen doğal ve katkısız ilik suyu. Yüksek kolajen içeriği, 6 farklı aroma, cam kavanoz ambalaj.'}</div>
+              <span className="brand-tag">{s.brand_ilikya_tag || 'Yakında →'}</span>
             </Link>
           </div>
         </div>
@@ -309,8 +291,8 @@ export default async function Home() {
         <div className="container">
           <div className="section-header reveal" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', textAlign: 'left' }}>
             <div>
-              <p className="eyebrow">Blog & Tarifler</p>
-              <h2 className="section-title">Son <em>Yazılarımız</em></h2>
+              <p className="eyebrow">{s.blog_eyebrow || 'Blog & Tarifler'}</p>
+              <h2 className="section-title">{s.blog_title || 'Son'} <em>{s.blog_title_em || 'Yazılarımız'}</em></h2>
             </div>
             <Link href="/blog" className="btn btn-outline btn-sm" style={{ flexShrink: 0, marginBottom: 16 }}>
               Tüm Yazılar →
@@ -349,10 +331,10 @@ export default async function Home() {
       <section className="section instagram-section">
         <div className="container">
           <div className="section-header reveal">
-            <p className="eyebrow">Sosyal Medya</p>
-            <h2 className="section-title">Bizi <em>Takip Edin</em></h2>
+            <p className="eyebrow">{s.instagram_eyebrow || 'Sosyal Medya'}</p>
+            <h2 className="section-title">{s.instagram_title || 'Bizi'} <em>{s.instagram_title_em || 'Takip Edin'}</em></h2>
             <p className="section-lead" style={{ color: 'rgba(255,255,255,0.5)' }}>
-              Instagram&apos;da günlük paylaşımlarımızı takip edin.
+              {s.instagram_lead || "Instagram'da günlük paylaşımlarımızı takip edin."}
             </p>
           </div>
           <div className="ig-placeholder-grid reveal">
@@ -370,7 +352,7 @@ export default async function Home() {
               className="ig-follow-btn"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r="0.5" fill="white" /></svg>
-              @tandirciusta — Takip Et
+              {s.instagram_handle || '@tandirciusta — Takip Et'}
             </a>
           </div>
         </div>
@@ -380,9 +362,9 @@ export default async function Home() {
       <section id="rezervasyon" className="section request-section">
         <div className="container">
           <div className="section-header reveal">
-            <p className="eyebrow">Hemen Başlayın</p>
-            <h2 className="section-title">Rezervasyon & <em>Talep</em></h2>
-            <p className="section-lead">Masa rezervasyonu, catering talebi veya öneri ve şikayetleriniz için formumuzu kullanın. Kısa sürede dönüş yapıyoruz.</p>
+            <p className="eyebrow">{s.rezervasyon_eyebrow || 'Hemen Başlayın'}</p>
+            <h2 className="section-title">{s.rezervasyon_title || 'Rezervasyon &'} <em>{s.rezervasyon_title_em || 'Talep'}</em></h2>
+            <p className="section-lead">{s.rezervasyon_lead || 'Masa rezervasyonu, catering talebi veya öneri ve şikayetleriniz için formumuzu kullanın. Kısa sürede dönüş yapıyoruz.'}</p>
           </div>
           <RequestForm whatsapp={s.whatsapp} />
         </div>
@@ -479,6 +461,7 @@ export default async function Home() {
         phone={s.phone} address={s.address} instagram={s.instagram}
         whatsapp={s.whatsapp} hoursWeekday={s.hours_weekday}
         hoursSaturday={s.hours_saturday} hoursSunday={s.hours_sunday}
+        description={s.footer_description}
       />
     </>
   )

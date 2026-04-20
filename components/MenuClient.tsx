@@ -8,19 +8,13 @@ type Props = {
 }
 
 export default function MenuClient({ categories, items }: Props) {
-  const [active, setActive] = useState<string>('all')
+  const [active, setActive] = useState<string>(categories[0]?.id ?? '')
 
-  const filtered = items.filter(i => active === 'all' || i.category_id === active)
+  const filtered = items.filter(i => i.category_id === active)
 
   return (
     <>
       <div className="menu-filter reveal">
-        <button
-          className={`filter-btn${active === 'all' ? ' active' : ''}`}
-          onClick={() => setActive('all')}
-        >
-          Tümü
-        </button>
         {categories.map(cat => (
           <button
             key={cat.id}

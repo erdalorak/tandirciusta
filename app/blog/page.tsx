@@ -18,6 +18,13 @@ export const metadata: Metadata = {
     siteName: 'Tandırcı Usta',
     locale: 'tr_TR',
     type: 'website',
+    images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'Tandırcı Usta Blog & Tarifler' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Blog & Tarifler | Tandırcı Usta',
+    description: 'Geleneksel Anadolu tarifleri, tandır pişirme ipuçları ve Kırşehir mutfağı.',
+    images: ['/og-image.jpg'],
   },
 }
 

@@ -8,6 +8,7 @@ type Props = {
   hoursWeekday?: string
   hoursSaturday?: string
   hoursSunday?: string
+  description?: string
 }
 
 export default function Footer({
@@ -18,6 +19,7 @@ export default function Footer({
   hoursWeekday = '07:00 – 17:00',
   hoursSaturday = '07:00 – 17:00',
   hoursSunday = 'Kapalı',
+  description,
 }: Props) {
   return (
     <footer className="footer">
@@ -26,7 +28,7 @@ export default function Footer({
           <div>
             <div className="footer-logo-text">Tandırcı Usta®</div>
             <p className="footer-desc">
-              Kırşehir&apos;in geleneksel tandır restoranı. Ateşin sabrıyla, ustanın elleriyle pişirilmiş Anadolu lezzetleri.
+              {description || 'Kırşehir\'in geleneksel tandır restoranı. Ateşin sabrıyla, ustanın elleriyle pişirilmiş Anadolu lezzetleri.'}
             </p>
           </div>
           <div>

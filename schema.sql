@@ -58,8 +58,14 @@ create table if not exists blog_posts (
   excerpt text default '',
   cover_image_url text default '',
   published boolean default false,
+  post_type text default 'blog',       -- 'blog' | 'tarif'
+  recipe_data jsonb default null,       -- structured recipe fields
   created_at timestamptz default now()
 );
+
+-- Migration for existing databases:
+-- alter table blog_posts add column if not exists post_type text default 'blog';
+-- alter table blog_posts add column if not exists recipe_data jsonb default null;
 
 -- 5. Galeri
 create table if not exists gallery_images (
