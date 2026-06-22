@@ -97,25 +97,59 @@ export default function QrMenuClient({
           {menuLead && <p className="qr-menu-lead">{menuLead}</p>}
         </div>
 
-        {sections.map(({ cat, list }) => (
-          <section key={cat.id} id={`qr-sec-${cat.id}`} className="qr-menu-section" aria-labelledby={`qr-h-${cat.id}`}>
-            <h2 id={`qr-h-${cat.id}`} className="qr-menu-cat">
-              {cat.name}
-            </h2>
-            <ul className="qr-menu-list" role="list">
-              {list.map(item => (
-                <li key={item.id} className="qr-menu-item">
-                  <span className="qr-menu-item-name">{item.name}</span>
-                  <div className="qr-menu-item-bottom">
-                    {item.is_featured ? <span className="qr-menu-item-badge">Öne çıkan</span> : null}
-                    {item.price ? <span className="qr-menu-item-price">{item.price}</span> : null}
-                  </div>
-                  {item.description ? <p className="qr-menu-item-desc">{item.description}</p> : null}
-                </li>
-              ))}
-            </ul>
-          </section>
-        ))}
+        {sections.map(({ cat, list }) => {
+          // Pair "Az X" with "X": build rows of [item, partner|null]
+          const rows: Array<[MenuItem, MenuItem | null]> = []
+          const used = new Set<string>()
+          for (const item of list) {
+            if (used.has(item.id)) continue
+            const baseName = item.name.startsWith('Az ') ? item.name.slice(3) : null
+            const partner = baseName ? list.find(i => i.name === baseName && !used.has(i.id)) : null
+            if (partner) {
+              rows.push([item, partner])
+              used.add(item.id)
+              used.add(partner.id)
+            } else {
+              // Check if a "Az X" version exists but is already paired; if not, this item goes solo
+              rows.push([item, null])
+              used.add(item.id)
+            }
+          }
+          return (
+            <section key={cat.id} id={`qr-sec-${cat.id}`} className="qr-menu-section" aria-labelledby={`qr-h-${cat.id}`}>
+              <h2 id={`qr-h-${cat.id}`} className="qr-menu-cat">
+                {cat.name}
+              </h2>
+              <ul className="qr-menu-list" role="list">
+                {rows.map(([a, b]) => (
+                  b ? (
+                    <li key={a.id + b.id} className="qr-menu-pair">
+                      {[a, b].map(item => (
+                        <div key={item.id} className="qr-menu-item">
+                          <span className="qr-menu-item-name">{item.name}</span>
+                          <div className="qr-menu-item-bottom">
+                            {item.is_featured ? <span className="qr-menu-item-badge">Öne çıkan</span> : null}
+                            {item.price ? <span className="qr-menu-item-price">{item.price}</span> : null}
+                          </div>
+                          {item.description ? <p className="qr-menu-item-desc">{item.description}</p> : null}
+                        </div>
+                      ))}
+                    </li>
+                  ) : (
+                    <li key={a.id} className="qr-menu-item qr-menu-item--solo">
+                      <span className="qr-menu-item-name">{a.name}</span>
+                      <div className="qr-menu-item-bottom">
+                        {a.is_featured ? <span className="qr-menu-item-badge">Öne çıkan</span> : null}
+                        {a.price ? <span className="qr-menu-item-price">{a.price}</span> : null}
+                      </div>
+                      {a.description ? <p className="qr-menu-item-desc">{a.description}</p> : null}
+                    </li>
+                  )
+                ))}
+              </ul>
+            </section>
+          )
+        })}
 
         <footer className="qr-menu-foot">
           <p className="qr-menu-disclaimer">Fiyatlar ve porsiyon bilgisi garson teyidine tabidir.</p>
