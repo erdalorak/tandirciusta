@@ -14,12 +14,12 @@ async function getData() {
     getSettings(),
     supabase.from('menu_categories').select('*').order('display_order'),
     supabase.from('menu_items').select('*').eq('is_available', true).order('display_order'),
-    supabase.from('blog_posts').select('id,title,slug,excerpt,cover_image_url,created_at').eq('published', true).order('created_at', { ascending: false }).limit(3),
+    supabase.from('blog_posts').select('id,title,slug,excerpt,cover_image_url,created_at,post_type').eq('published', true).or('post_type.eq.blog,post_type.is.null').order('created_at', { ascending: false }).limit(3),
     supabase.from('gallery_images').select('*').order('display_order').limit(6),
   ])
   const featuredSlug = settings.featured_blog_slug
   const featuredRes = featuredSlug
-    ? await supabase.from('blog_posts').select('id,title,slug,excerpt,cover_image_url,created_at').eq('slug', featuredSlug).eq('published', true).single()
+    ? await supabase.from('blog_posts').select('id,title,slug,excerpt,cover_image_url,created_at,post_type').eq('slug', featuredSlug).eq('published', true).single()
     : { data: null }
   return {
     settings,
@@ -269,7 +269,7 @@ export default async function Home() {
               <p className="eyebrow">Ustasından</p>
               <h2 className="section-title">Öne Çıkan <em>Tarif</em></h2>
             </div>
-            <Link href={`/blog/${featuredPost.slug}`} className="featured-post-card reveal reveal-d1">
+            <Link href={featuredPost.post_type === 'tarif' ? `/tarifler/${featuredPost.slug}` : `/blog/${featuredPost.slug}`} className="featured-post-card reveal reveal-d1">
               {featuredPost.cover_image_url && (
                 <div className="featured-post-img">
                   <img src={featuredPost.cover_image_url} alt={featuredPost.title} loading="lazy" />
@@ -291,11 +291,11 @@ export default async function Home() {
         <div className="container">
           <div className="section-header reveal" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', textAlign: 'left' }}>
             <div>
-              <p className="eyebrow">{s.blog_eyebrow || 'Blog & Tarifler'}</p>
+              <p className="eyebrow">{s.blog_eyebrow || 'Blog'}</p>
               <h2 className="section-title">{s.blog_title || 'Son'} <em>{s.blog_title_em || 'Yazılarımız'}</em></h2>
             </div>
             <Link href="/blog" className="btn btn-outline btn-sm" style={{ flexShrink: 0, marginBottom: 16 }}>
-              Tüm Yazılar →
+              Tümü →
             </Link>
           </div>
           <div className="blog-grid">

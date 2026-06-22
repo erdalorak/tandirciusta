@@ -33,8 +33,9 @@ export default function Nav() {
             <li><a href="/#menu">Menü</a></li>
             <li><a href="/#hakkimizda">Hakkımızda</a></li>
             <li><a href="/#yorumlar">Yorumlar</a></li>
-            <li><a href="/#markalar">Markalar</a></li>
-            <li><Link href="/blog">Blog & Tarifler</Link></li>
+            <li><Link href="/tarifler">Tarifler</Link></li>
+            <li><Link href="/blog">Blog</Link></li>
+            <li><Link href="/ilikya">İlikya</Link></li>
             <li><a href="/#iletisim">İletişim</a></li>
             <li><a href="/#rezervasyon" className="nav-cta">Rezervasyon</a></li>
           </ul>
@@ -51,8 +52,9 @@ export default function Nav() {
         <a href="/#menu" onClick={close}>Menü</a>
         <a href="/#hakkimizda" onClick={close}>Hakkımızda</a>
         <a href="/#yorumlar" onClick={close}>Yorumlar</a>
-        <a href="/#markalar" onClick={close}>Markalar</a>
-        <Link href="/blog" onClick={close}>Blog & Tarifler</Link>
+        <Link href="/tarifler" onClick={close}>Tarifler</Link>
+        <Link href="/blog" onClick={close}>Blog</Link>
+        <Link href="/ilikya" onClick={close}>İlikya</Link>
         <a href="/#rezervasyon" onClick={close}>Rezervasyon</a>
         <a href="/#iletisim" onClick={close}>İletişim & Konum</a>
       </div>

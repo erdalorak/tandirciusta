@@ -6,7 +6,7 @@ export default function AnalyticsTracker() {
   const pathname = usePathname()
 
   useEffect(() => {
-    if (pathname.startsWith('/admin')) return
+    if (pathname.startsWith('/tusta')) return
     fetch('/api/analytics', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

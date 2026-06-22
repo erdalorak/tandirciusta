@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { supabaseAdmin } from '@/lib/supabase'
 
 function auth(req: NextRequest) {
@@ -39,5 +40,6 @@ export async function POST(req: NextRequest) {
   const table = body.type === 'category' ? 'menu_categories' : 'menu_items'
   const { data, error } = await supabaseAdmin.from(table).insert(payload).select().single()
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  revalidatePath('/menu')
   return NextResponse.json(data, { status: 201 })
 }

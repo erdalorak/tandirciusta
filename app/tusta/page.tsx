@@ -5,8 +5,9 @@ import { PAGE_SECTIONS } from '@/lib/admin-pages-config'
 
 const ImageUploadCrop = dynamic(() => import('@/components/admin/ImageUploadCrop'), { ssr: false })
 const RichEditor = dynamic(() => import('@/components/admin/RichEditor'), { ssr: false })
+const RedirectsTab = dynamic(() => import('@/components/admin/RedirectsTab'), { ssr: false })
 
-const TABS = ['Dashboard', 'Sayfalar', 'Menü', 'Blog & Tarifler', 'Galeri', 'Talepler', 'İstatistikler'] as const
+const TABS = ['Dashboard', 'Sayfalar', 'Menü', 'Blog & Tarifler', 'Galeri', 'Talepler', 'İstatistikler', '301 Yönlendirme'] as const
 type Tab = typeof TABS[number]
 
 type Post = { id: string; title: string; slug: string; published: boolean; created_at: string; excerpt: string; post_type?: string }
@@ -643,9 +644,11 @@ function MenuTab({ adminKey }: { adminKey: string }) {
                         </td>
                         <td>{item.price?.trim() ? item.price : '—'}</td>
                         <td>
-                          <button type="button" onClick={() => toggleAvailable(item)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-                            <span className={`badge ${item.is_available ? 'badge-green' : 'badge-gray'}`}>{item.is_available ? 'Yayında' : 'Gizli'}</span>
-                          </button>
+                          <label className="admin-avail-switch" title={item.is_available ? 'Yayında — kapat' : 'Gizli — yayınla'}>
+                            <input type="checkbox" checked={item.is_available} onChange={() => toggleAvailable(item)} />
+                            <span className="admin-avail-track"><span className="admin-avail-thumb" /></span>
+                            <span className="admin-avail-label">{item.is_available ? 'Yayında' : 'Gizli'}</span>
+                          </label>
                         </td>
                         <td>
                           <div className="admin-actions admin-menu-row-actions">
@@ -986,7 +989,7 @@ function BlogTab({ adminKey }: { adminKey: string }) {
                 return true
               })
               .sort((a, b) => sortBy === 'views'
-                ? (viewCounts[`/blog/${b.slug}`] ?? 0) - (viewCounts[`/blog/${a.slug}`] ?? 0)
+                ? ((viewCounts[`/tarifler/${b.slug}`] ?? viewCounts[`/blog/${b.slug}`] ?? 0) - (viewCounts[`/tarifler/${a.slug}`] ?? viewCounts[`/blog/${a.slug}`] ?? 0))
                 : 0
               )
             if (posts.length === 0) return <div className="admin-empty">Henüz yazı yok. &quot;Yeni Yazı / Tarif&quot; ile başlayın.</div>
@@ -996,7 +999,7 @@ function BlogTab({ adminKey }: { adminKey: string }) {
               <thead><tr><th>Başlık</th><th>Tür</th><th>Görüntülenme</th><th>Tarih</th><th>Durum</th><th>İşlem</th></tr></thead>
               <tbody>
                 {filteredPosts.map(p => {
-                  const views = viewCounts[`/blog/${p.slug}`] ?? 0
+                  const views = viewCounts[p.post_type === 'tarif' ? `/tarifler/${p.slug}` : `/blog/${p.slug}`] ?? 0
                   return (
                   <tr key={p.id}>
                     <td>
@@ -1850,6 +1853,7 @@ export default function AdminPage() {
     'Galeri': <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>,
     'Talepler': <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>,
     'İstatistikler': <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>,
+    '301 Yönlendirme': <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>,
   }
 
   if (!authed) {
@@ -1942,6 +1946,7 @@ export default function AdminPage() {
         {activeTab === 'Galeri'         && <GalleryTab adminKey={adminKey} />}
         {activeTab === 'Talepler'       && <TaleplerTab adminKey={adminKey} />}
         {activeTab === 'İstatistikler'  && <IstatistiklerTab adminKey={adminKey} />}
+        {activeTab === '301 Yönlendirme' && <RedirectsTab adminKey={adminKey} />}
       </main>
     </div>
   )

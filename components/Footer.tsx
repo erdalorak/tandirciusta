@@ -37,7 +37,8 @@ export default function Footer({
               <li><a href="/#menu">Menü</a></li>
               <li><a href="/#hakkimizda">Hakkımızda</a></li>
               <li><a href="/#galeri">Galeri</a></li>
-              <li><Link href="/blog">Blog & Tarifler</Link></li>
+              <li><Link href="/tarifler">Tarifler</Link></li>
+              <li><Link href="/blog">Blog</Link></li>
               <li><a href="/#iletisim">İletişim</a></li>
             </ul>
           </div>

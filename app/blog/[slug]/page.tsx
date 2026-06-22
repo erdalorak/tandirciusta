@@ -1,11 +1,12 @@
 import type { Metadata } from 'next'
-import { notFound } from 'next/navigation'
+import { notFound, permanentRedirect } from 'next/navigation'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 import { supabaseAdmin as supabase, getSettings } from '@/lib/supabase'
-import type { BlogPost, RecipeData } from '@/lib/supabase'
+import type { BlogPost } from '@/lib/supabase'
 import Link from 'next/link'
 import ShareButtons from '@/components/ShareButtons'
+import LikeButtons from '@/components/LikeButtons'
 
 export const revalidate = 60
 
@@ -15,10 +16,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const { data } = await supabase
     .from('blog_posts')
-    .select('title,excerpt,cover_image_url,created_at,meta_title,meta_description')
+    .select('title,excerpt,cover_image_url,created_at,meta_title,meta_description,post_type')
     .eq('slug', slug)
     .single()
   if (!data) return { title: 'Yazı Bulunamadı' }
+  if (data.post_type === 'tarif') permanentRedirect(`/tarifler/${slug}`)
   const metaTitle = data.meta_title || data.title
   const metaDesc  = data.meta_description || data.excerpt
   return {
@@ -68,101 +70,6 @@ function extractFAQ(html: string): { q: string; a: string }[] {
   return faqs
 }
 
-function RecipeCard({ r }: { r: RecipeData }) {
-  const diffColor = r.difficulty === 'Kolay' ? '#16a34a' : r.difficulty === 'Zor' ? '#dc2626' : '#d97706'
-  const diffBg    = r.difficulty === 'Kolay' ? 'rgba(22,163,74,0.08)' : r.difficulty === 'Zor' ? 'rgba(220,38,38,0.08)' : 'rgba(217,119,6,0.08)'
-
-  return (
-    <div className="recipe-card">
-      {/* Meta bar */}
-      {(r.prep_time || r.cook_time || r.servings || r.difficulty) && (
-        <div className="recipe-meta-bar">
-          {r.prep_time && (
-            <div className="recipe-meta-item">
-              <span className="recipe-meta-icon">⏱</span>
-              <div>
-                <div className="recipe-meta-label">Hazırlık</div>
-                <div className="recipe-meta-value">{r.prep_time}</div>
-              </div>
-            </div>
-          )}
-          {r.cook_time && (
-            <div className="recipe-meta-item">
-              <span className="recipe-meta-icon">🔥</span>
-              <div>
-                <div className="recipe-meta-label">Pişirme</div>
-                <div className="recipe-meta-value">{r.cook_time}</div>
-              </div>
-            </div>
-          )}
-          {r.servings && (
-            <div className="recipe-meta-item">
-              <span className="recipe-meta-icon">👥</span>
-              <div>
-                <div className="recipe-meta-label">Porsiyon</div>
-                <div className="recipe-meta-value">{r.servings}</div>
-              </div>
-            </div>
-          )}
-          {r.difficulty && (
-            <div className="recipe-meta-item">
-              <span className="recipe-meta-icon">📊</span>
-              <div>
-                <div className="recipe-meta-label">Zorluk</div>
-                <div className="recipe-meta-value" style={{ color: diffColor, background: diffBg, padding: '1px 8px', borderRadius: 20, fontSize: 12, fontWeight: 700, display: 'inline-block' }}>{r.difficulty}</div>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      <div className="recipe-body">
-        {/* Malzemeler */}
-        {r.ingredients?.filter(i => i.trim()).length > 0 && (
-          <div className="recipe-block">
-            <div className="recipe-block-title">
-              <span>🥩</span> Malzemeler
-            </div>
-            <ul className="recipe-ingredients">
-              {r.ingredients.filter(i => i.trim()).map((ing, idx) => (
-                <li key={idx} className="recipe-ingredient-item">
-                  <span className="recipe-ingredient-dot" />
-                  {ing}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {/* Yapılış Adımları */}
-        {r.steps?.filter(s => s.trim()).length > 0 && (
-          <div className="recipe-block">
-            <div className="recipe-block-title">
-              <span>👨‍🍳</span> Yapılış
-            </div>
-            <ol className="recipe-steps">
-              {r.steps.filter(s => s.trim()).map((step, idx) => (
-                <li key={idx} className="recipe-step">
-                  <span className="recipe-step-num">{idx + 1}</span>
-                  <p className="recipe-step-text">{step}</p>
-                </li>
-              ))}
-            </ol>
-          </div>
-        )}
-
-        {/* Püf Noktaları */}
-        {r.tips?.trim() && (
-          <div className="recipe-tips">
-            <div className="recipe-tips-title">💡 Püf Noktaları</div>
-            <p className="recipe-tips-text">{r.tips}</p>
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
-
 export default async function PostPage({ params }: Props) {
   const { slug } = await params
   const [s, { data: post }, { data: relatedRaw }] = await Promise.all([
@@ -175,9 +82,10 @@ export default async function PostPage({ params }: Props) {
       .single(),
     supabase
       .from('blog_posts')
-      .select('id,title,slug,excerpt,cover_image_url,created_at')
+      .select('id,title,slug,excerpt,cover_image_url,created_at,post_type')
       .eq('published', true)
       .neq('slug', slug)
+      .or('post_type.eq.blog,post_type.is.null')
       .order('created_at', { ascending: false })
       .limit(3),
   ])
@@ -185,8 +93,7 @@ export default async function PostPage({ params }: Props) {
 
   if (!post) notFound()
   const p = post as BlogPost
-  const isRecipe = p.post_type === 'tarif'
-  const recipe = p.recipe_data as RecipeData | null
+  if (p.post_type === 'tarif') permanentRedirect(`/tarifler/${slug}`)
 
   const toc = extractTOC(p.content)
   const contentWithIds = injectH2Ids(p.content)
@@ -209,30 +116,8 @@ export default async function PostPage({ params }: Props) {
     author: { '@type': 'Organization', '@id': 'https://tandirciusta.com/#restaurant', name: 'Tandırcı Usta', url: 'https://tandirciusta.com' },
     publisher: { '@type': 'Organization', '@id': 'https://tandirciusta.com/#restaurant', name: 'Tandırcı Usta', logo: { '@type': 'ImageObject', url: 'https://tandirciusta.com/logo.png' } },
     mainEntityOfPage: { '@type': 'WebPage', '@id': postUrl },
-    isPartOf: { '@type': 'Blog', name: 'Tandırcı Usta Blog & Tarifler', url: 'https://tandirciusta.com/blog' },
+    isPartOf: { '@type': 'Blog', name: 'Tandırcı Usta Blog', url: 'https://tandirciusta.com/blog' },
   }
-
-  /* ── Recipe Schema (tarif yazılarında) ── */
-  const recipeSchema = isRecipe && recipe ? {
-    '@context': 'https://schema.org',
-    '@type': 'Recipe',
-    name: p.title,
-    description: p.excerpt || '',
-    image: p.cover_image_url ? [p.cover_image_url] : [],
-    author: { '@type': 'Organization', name: 'Tandırcı Usta', url: 'https://tandirciusta.com' },
-    datePublished: p.created_at,
-    prepTime: recipe.prep_time ? `PT${recipe.prep_time.replace(/[^0-9]/g, '')}M` : undefined,
-    cookTime: recipe.cook_time ? `PT${recipe.cook_time.replace(/[^0-9]/g, '')}M` : undefined,
-    recipeYield: recipe.servings || undefined,
-    recipeCuisine: 'Türk Mutfağı',
-    recipeCategory: 'Ana Yemek',
-    recipeIngredient: recipe.ingredients?.filter(i => i.trim()) || [],
-    recipeInstructions: recipe.steps?.filter(s => s.trim()).map((step, i) => ({
-      '@type': 'HowToStep',
-      position: i + 1,
-      text: step,
-    })) || [],
-  } : null
 
   /* ── Breadcrumb Schema ── */
   const breadcrumbSchema = {
@@ -240,7 +125,7 @@ export default async function PostPage({ params }: Props) {
     '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Ana Sayfa', item: 'https://tandirciusta.com' },
-      { '@type': 'ListItem', position: 2, name: 'Blog & Tarifler', item: 'https://tandirciusta.com/blog' },
+      { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://tandirciusta.com/blog' },
       { '@type': 'ListItem', position: 3, name: p.title, item: postUrl },
     ],
   }
@@ -258,7 +143,6 @@ export default async function PostPage({ params }: Props) {
       <Nav />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
-      {recipeSchema && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(recipeSchema) }} />}
       {faqSchema && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />}
 
       <article>
@@ -267,7 +151,7 @@ export default async function PostPage({ params }: Props) {
             <nav className="post-breadcrumb" aria-label="Breadcrumb">
               <Link href="/" className="post-breadcrumb-link">Ana Sayfa</Link>
               <span className="post-breadcrumb-sep">›</span>
-              <Link href="/blog" className="post-breadcrumb-link">Blog & Tarifler</Link>
+              <Link href="/blog" className="post-breadcrumb-link">Blog</Link>
               <span className="post-breadcrumb-sep">›</span>
               <span className="post-breadcrumb-current">{p.title}</span>
             </nav>
@@ -276,11 +160,6 @@ export default async function PostPage({ params }: Props) {
               <p className="eyebrow" style={{ margin: 0 }}>
                 {new Date(p.created_at).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}
               </p>
-              {isRecipe && (
-                <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', background: 'rgba(245,158,11,0.12)', color: '#d97706', border: '1px solid rgba(245,158,11,0.3)', padding: '3px 10px', borderRadius: 20 }}>
-                  🍽️ Yemek Tarifi
-                </span>
-              )}
             </div>
 
             <h1 className="post-title">{p.title}</h1>
@@ -295,11 +174,8 @@ export default async function PostPage({ params }: Props) {
             <img src={p.cover_image_url} alt={p.title} className="post-cover" />
           )}
 
-          {/* Tarif Kartı */}
-          {isRecipe && recipe && <RecipeCard r={recipe} />}
-
           {/* İçindekiler */}
-          {!isRecipe && toc.length >= 3 && (
+          {toc.length >= 3 && (
             <nav className="post-toc" aria-label="İçindekiler">
               <div className="post-toc-title">📋 İçindekiler</div>
               <ol className="post-toc-list">
@@ -315,10 +191,13 @@ export default async function PostPage({ params }: Props) {
             <div className="post-content" dangerouslySetInnerHTML={{ __html: contentWithIds }} />
           )}
 
+          <LikeButtons postId={p.id} title={p.title} url={postUrl} />
+
           <ShareButtons url={postUrl} title={p.title} />
 
           <div style={{ marginTop: 32, display: 'flex', gap: 12 }}>
-            <Link href="/blog" className="btn btn-outline btn-sm">← Tüm Tarifler</Link>
+            <Link href="/blog" className="btn btn-outline btn-sm">← Tüm yazılar</Link>
+            <Link href="/tarifler" className="btn btn-outline btn-sm">Tarifler</Link>
             <Link href="/#rezervasyon" className="btn btn-red btn-sm">Rezervasyon Yap</Link>
           </div>
 
@@ -326,7 +205,7 @@ export default async function PostPage({ params }: Props) {
           {relatedPosts.length > 0 && (
             <div style={{ marginTop: 64, paddingTop: 40, borderTop: '1px solid #e8e0d5' }}>
               <h2 style={{ fontFamily: 'Georgia,serif', fontSize: 22, fontWeight: 700, marginBottom: 24, color: '#1a1a1a' }}>
-                Diğer Tarifler
+                Diğer yazılar
               </h2>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(220px,1fr))', gap: 20 }}>
                 {relatedPosts.map(rp => (

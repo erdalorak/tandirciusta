@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { supabaseAdmin } from '@/lib/supabase'
 
 function auth(req: NextRequest) {
@@ -16,6 +17,7 @@ export async function PUT(req: NextRequest, { params }: Props) {
   delete payload.type
   const { data, error } = await supabaseAdmin.from(table).update(payload).eq('id', id).select().single()
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  revalidatePath('/menu')
   return NextResponse.json(data)
 }
 
@@ -26,5 +28,6 @@ export async function DELETE(req: NextRequest, { params }: Props) {
   const table = body.type === 'category' ? 'menu_categories' : 'menu_items'
   const { error } = await supabaseAdmin.from(table).delete().eq('id', id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  revalidatePath('/menu')
   return NextResponse.json({ ok: true })
 }

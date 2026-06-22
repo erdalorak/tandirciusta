@@ -89,3 +89,17 @@ create policy "public_read_categories" on menu_categories for select using (true
 create policy "public_read_items" on menu_items for select using (is_available = true);
 create policy "public_read_posts" on blog_posts for select using (published = true);
 create policy "public_read_gallery" on gallery_images for select using (true);
+
+-- 6. 301 URL Yönlendirmeleri (Admin panel modülü)
+create table if not exists url_redirects (
+  id uuid default gen_random_uuid() primary key,
+  source_path text not null unique,
+  destination_path text not null,
+  status_code int not null default 301 check (status_code = 301),
+  created_at timestamptz default now()
+);
+
+create index if not exists idx_url_redirects_source on url_redirects (source_path);
+
+alter table url_redirects enable row level security;
+create policy "public_read_redirects" on url_redirects for select using (true);

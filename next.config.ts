@@ -6,5 +6,14 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: '**.googleapis.com' },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: '/admin',
+        destination: '/tusta',
+        permanent: true,
+      },
+    ]
+  },
 }
 export default nextConfig
